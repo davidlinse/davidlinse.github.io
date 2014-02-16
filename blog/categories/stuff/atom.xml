@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: stuff | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/stuff/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-02-16T15:11:24+01:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to port WordPress blog entries to OctoPress .markdown files]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/"/>
+    <updated>2014-02-14T19:59:18+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files</id>
+    <content type="html"><![CDATA[<p>This is a quick summary of how to port your existing (selfhosted) <em>WordPress</em>
+blog to <em>Markdown</em> files for <a href="http://octopress.org/"><em>OctoPress</em></a>
+using a tool called <a href="https://github.com/thomasf/exitwp"><em>ExitWP</em></a>.</p>
+
+<pre><code># create a temporary folder and cd into it
+$ mkdir /tmp/exitwp &amp;&amp; cd $_
+$ curl -O http://python-distribute.org/distribute_setup.py
+$ sudo python distribute_setup.py
+</code></pre>
+
+<p>After that you can run <code>$ easy_install pip</code> which will produce something
+like:</p>
+
+<pre><code>$ easy_install pip
+
+Searching for pip
+Reading http://pypi.python.org/simple/pip/
+Best match: pip 1.5.2
+Downloading https://pypi.python.org/packages/source/p/pip/pip-1.5.2.tar.gz#md5=5da30...
+Processing pip-1.5.2.tar.gz
+Running pip-1.5.2/setup.py -q bdist_egg \
+--dist-dir /var/folders/KX/KX5-l3xk+++TI/-Tmp-/easy_install-MB0/pip-1.5.2/egg-dist-tmp-a_J9u5
+warning: no files found matching 'pip/cacert.pem'
+warning: no files found matching '*.html' under directory 'docs'
+warning: no previously-included files matching '*.rst' found under directory 'docs/_build'
+no previously-included directories found matching 'docs/_build/_sources'
+Adding pip 1.5.2 to easy-install.pth file
+Installing pip script to /usr/local/bin
+Installing pip2.6 script to /usr/local/bin
+Installing pip2 script to /usr/local/bin
+</code></pre>
+
+<br/>
+
+
+<p>Now clone the <em>exitwp</em> repository</p>
+
+<pre><code>$ git@github.com:thomasf/exitwp.git
+</code></pre>
+
+<br/>
+
+
+<p>install the missing dependecies ..</p>
+
+<pre><code>sudo pip install --upgrade -r pip_requirements.txt
+# ..
+# stripped lots of download related output
+# ..
+Installing collected packages: html5lib, beautifulsoup4, html2text, six
+  Running setup.py install for html5lib
+  Running setup.py install for beautifulsoup4
+  Running setup.py install for html2text
+    Installing html2text script to /usr/local/bin
+  Found existing installation: six 1.3.0
+    Uninstalling six:
+      Successfully uninstalled six
+Successfully installed html5lib beautifulsoup4 html2text six
+Cleaning up...
+</code></pre>
+
+<br/>
+
+
+<p>And finally:</p>
+
+<pre><code>$ python exitwp.py
+</code></pre>
+
+<br/>
+
+
+<p>After the script has done its work you should find all posts in the <em>build/</em>
+directory.
+Hope that helps and saves you some time.</p>
+
+<p>~ David</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bye WordPress, Welcome Octopress (?!)]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/02/08/leaving-wordpress/"/>
+    <updated>2014-02-08T14:45:35+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/02/08/leaving-wordpress</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m <em>(probably)</em> going to leave <em>WordPress</em> in favour of <em>Octopress</em>
+ <small> <em>(in the long run)</em> </small>.</p>
+
+<p>Why? Because i was actually fairly unhappy with WordPress for a while now.
+Over the years i had to deal with a lot of issues e.g.</p>
+
+<ul>
+<li>plug-ins suddenly stop after updates</li>
+<li>data-loss due mysterious reasons</li>
+<li>beeing hacked due security issues</li>
+<li>a <em>White Admin Panel</em></li>
+<li>etc.</li>
+</ul>
+
+
+<p>Switching to <em>Octopress</em> hopefully will solve most of the mentioned reasons.
+Plus i can play with <em>git</em> and write in <a href="http://lmgtfy.com/?q=Daring+Fireball+Markdown"><em>Markdown</em></a> .. ;)</p>
+
+<p>See also: <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/"><em>How to move from WordPress to OctoPress</em></a></p>
+
+<p>~ <a href="http://davidlinse.github.io">davidlinse<em>.github.io</em></a></p>
+
+<p><small><em> This post was written in <a href="https://daringfireball.net/projects/markdown/">Markdown</a> format. </em></small><br/>
+<small><em>Keywords: Octopress, Wordpress, Markdown, git, White Admin Panel</em></small></p>
+
+<!-- keywords: Octopress, Wordpress, Markdown, git, White Admin Panel -->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[picks of the month #1]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/01/31/picks-of-the-month/"/>
+    <updated>2014-01-31T14:45:35+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/01/31/picks-of-the-month</id>
+    <content type="html"><![CDATA[<h4>sublimerge</h4>
+
+<p>You want to stay in your editor while <code>committing</code>, <code>merging</code> or
+<code>diff</code>&lsquo;n your <em>git</em>-based project ? Then you really should have a look at
+this awesome looking plugin for Sublime Text.</p>
+
+<ul>
+<li><a href="http://www.sublimerge.com/">sublimerge</a> &ndash; A diff and merge tool for Sublime Text 2/3</li>
+</ul>
+
+
+<h4>phantomas</h4>
+
+<p>You&rsquo;re interessed in the performance (and other <em>metrics</em>) of your front-end ?
+Check out the <em>phantomas</em> node module. It is evolving heavily and the number of
+contributors in growing steadily. It provides you with a nice graphical overview
+including <em>longest request</em>, <em>biggest requested data</em> and a lot of other <em>metrics</em>.
+Go ahead and give it a try.</p>
+
+<ul>
+<li><a href="https://github.com/stefanjudis/grunt-phantomas">phantomas</a> &ndash; Measure Front-End-Performance with NodeJS</li>
+</ul>
+
+
+<h4>qlstephen</h4>
+
+<p>Want to preview <code>.json</code> or <code>README</code> files with the <em>QuickLook</em> in <em>Finder</em> in OSX ?
+A quick download'n extract to <code>~/Library/Quicklook</code>and
+you&rsquo;re done!</p>
+
+<ul>
+<li><a href="https://github.com/whomwah/qlstephen">QLStephen</a> &ndash; Give it a try..</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Status]]></title>
+    <link href="http://davidlinse.github.io/blog/2013/10/03/status/"/>
+    <updated>2013-10-03T14:01:04+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2013/10/03/status</id>
+    <content type="html"><![CDATA[<p>It&rsquo;s literally has been a while since my last post.</p>
+
+<p>Meanwhile I was allowed to play around with:</p>
+
+<ul>
+<li>CJS and AMD modules</li>
+<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
+<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
+<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
+<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
+<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
+</ul>
+
+
+<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma', i&rsquo;m a JavaScript dude now)</em>.</p>
+
+<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
+
+<p>~david</p>
+]]></content>
+  </entry>
+  
+</feed>

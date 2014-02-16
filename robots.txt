@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://davidlinse.github.io/sitemap.xml 
