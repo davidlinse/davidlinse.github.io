@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: howto | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/howto/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-02-16T16:28:49+01:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RCov::VerifyTask "threshold" auto-update monitor]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/"/>
+    <updated>2011-10-03T03:46:22+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor</id>
+    <content type="html"><![CDATA[<p>When developing TDD or BDD in <code>Ruby (1.9.2)</code> using the <code>RCov::VerifyTask</code>
+you need to fullfill a certain <code>threshold</code> to make a build successful.</p>
+
+<p>It can be quite annoying to update the (hopefully) increased <code>threshold</code> of the
+<code>RCov::VerifyTask</code> in your <code>Rakefile</code> after each successful build.
+So I did some experiments and the following script is the result.</p>
+
+<!-- more -->
+
+
+<p>A common <a href="http://rspec.rubyforge.org/rspec/1.2.6/classes/RCov/VerifyTask.html"><code>RCov::VerifyTask</code></a> setup might look like:</p>
+
+<pre><code> Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+   t.threshold   = 10.00                     # to get started
+   t.index_html  = 'coverage/index.html'     # the path to html report
+ end
+</code></pre>
+
+<p>It uses another <code>:task</code> to capture the output of the actual <code>RCov::VerifyTask</code>
+and writes the <code>threshold</code> into a <code>coverage.yml</code> file. This <code>threshold</code> value
+is taken into comparison at the next build and updated at next build if
+its <code>value</code> has increased.</p>
+
+<p>First the method to read and write the <code>threshold</code> value from/to
+a <code>./coverage.yml</code>.</p>
+
+<pre><code> # the `log' file in `yaml' format
+ #
+ COVERAGE_YML   = 'coverage.yml'
+
+ # read the last 'threshold' from the .yml file
+ # and return `10.0' as value if the file isn't existant
+ #
+ def read_yaml_threshold
+
+   threshold = 10.0
+
+   return threshold unless File.exist? COVERAGE_YML
+
+   yaml  = read_yaml_file COVERAGE_YML
+
+   threshold = yaml["THRESHOLD"].to_s
+
+   threshold.to_f
+ end
+
+
+ # write the given `value' in `yaml' format
+ # back into `log' file.
+ #
+ def write_yaml_threshold value
+   File.open(COVERAGE_YML, 'w') do |f|
+     f.write({"THRESHOLD" =&gt; value}.to_yaml)
+   end
+ end
+</code></pre>
+
+<p>Now the updated rake tasks.</p>
+
+<pre><code> # read the previous threshold once and
+ # reuse it in tasks to reduce file-access
+ #
+ @old_threshold = read_yaml_threshold
+
+
+ # the SpecTask from above
+ #
+ desc "Run all rspec tests with RCOV"
+ Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ # the "verify" task which is still executable
+ # because the`threshold' property contains the
+ # current `threhold' value from `coverage.yml'
+ #
+ desc "Check code-coverage of project"
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+
+   threshold   = @old_threshold
+
+   Rake::Task['rcov'].execute
+
+   t.threshold   = threshold
+   t.index_html  = 'coverage/index.html'
+ end
+
+
+ # the actual 'capture and update' task which retrieves the 'previous'
+ # threshold and executes the `VerifyTask' and captures the 'new' threshold
+ # and finally compares them. if `new' threshold has increased the
+ # `coverage.yml' is updated.
+ #
+ task :run_verify do |t|
+
+     old_threshold = @old_threshold
+
+     log = `rake verify_rcov -f #{__FILE__}` # | tee coverage_log.txt`
+
+     new_threshold = threshold_from log
+
+     if new_threshold.to_f &gt; old_threshold.to_f
+
+       begin
+         write_yaml_threshold new_threshold
+       rescue =&gt; e
+         puts "ERROR #{e.message} "
+       end
+
+       puts "Finished ..."
+
+     else
+       if new_threshold.to_f &gt;= old_threshold.to_f
+         puts "Finished with `coverage' of #{new_threshold}% ..."
+       else
+         puts "Failed to finish with `coverage' of #{old_threshold}% =&gt; #{new_threshold}% ..."
+       end
+     end
+ end
+</code></pre>
+
+<p>Although i&rsquo;m quite happy with it as it works for me i would like to see if either
+there&rsquo;s a more convenient or `nerdy' way to implement this. I&rsquo;m still learning and
+every input is highly appreciated. :)</p>
+
+<p>If you found this useful feel free to share or comment.</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tweaking Flash (CS5) - Duplicate Symbol Dialog]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/"/>
+    <updated>2011-08-09T21:39:39+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog</id>
+    <content type="html"><![CDATA[<p>If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of <em>Adobe Flash CS5</em> maybe here&rsquo;s a solution.</p>
+
+<!-- more -->
+
+
+<h5>The situation<br/></h5>
+
+<p>By default the name for a new duplicated symbol is something like this:</p>
+
+<ul>
+<li><code>Kopie von NAME_OF_SYMBOL</code> .. (german)</li>
+<li><code>Copy of NAME_OF_SYMBOL</code> .. (english)</li>
+</ul>
+
+
+<p>How ugly is that ? Instead of just hitting the backspace to remove the &ldquo;copy-part&rdquo;
+you have to use the mouse and/or several key strokes to get rid of it.<br/>
+I want it more like this:</p>
+
+<ul>
+<li> <code>NAME_OF_SYMBOL Kopie</code></li>
+<li> <code>NAME_OF_SYMBOL copy</code></li>
+</ul>
+
+
+<p>So here is how to do it ..</p>
+
+<h5>The solution<br/></h5>
+
+<p>Close your Flash if it&rsquo;s running and go for a hunt for a file named <em>&ldquo;fl_dictionary.dat&rdquo;</em>
+and open it in your favourite editor. It&rsquo;s a alway a good idea to make a backup before
+making any changes. ;)</p>
+
+<p>Assuming you&rsquo;ve got installed <a href="http://macromates.com" title="Textmate">Textmate</a> and you&rsquo;re on:</p>
+
+<ul>
+<li><p> OSX, in a terminal it is:</p>
+
+<p>   <code>find /Applications -iname "fl_dictionary.dat" -print0 | xargs -0 mate</code></p></li>
+<li><p> M$, in the shell it is:</p>
+
+<p>   <code>.. uhm, could you provide something .. ?</code> (leave a comment and i&rsquo;ll add it &hellip;)</p></li>
+</ul>
+
+
+<p>Now search for <code>"Kopie von %s"</code> or  <code>"Copy of %s"</code> (without the quotes)
+and change it to what ever you want to see when duplicating a symbol.
+The <code>%s</code> is the placeholder for the symbol you&rsquo;re going to duplicate later.
+I changed my to &ldquo;<code>%s copy</code>&rdquo; which gives me the above mentioned format of <code>NAME_OF_SYMBOL copy</code>.<br/>
+Save the file restart Flash and (hopefully) you&rsquo;ll see your made changes.</p>
+
+<p>That&rsquo;s it ..<br/>
+Feel free to spread and or leave a comment below..</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sending Mails Using Ant MailTask FDT/Eclipse]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/"/>
+    <updated>2010-11-28T22:06:26+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt</id>
+    <content type="html"><![CDATA[<p>I always wanted to make use of the &ldquo;Post compile ant file&rdquo; from Eclipse.
+After hours of searching, trial and (mostly) error i finally got it working.
+The Ant-MailTask sends a mail from within Eclipse including attachment.</p>
+
+<p>The downside is that i was unable to get this running with my default Ant installation (v.1.7.1)
+and had to install a newer version of Ant.</p>
+
+<p>I dont want to bore you with details of my odyssey but show you how it gets done in more or
+less four steps.</p>
+
+<!-- more -->
+
+
+<p>First check the version of your current Ant installation by typing
+<code>ant -version</code> in your Terminal which should give you something like:</p>
+
+<pre><code>Apache Ant version 1.8.1 compiled on April 30 2010
+</code></pre>
+
+<p>If you have the version 1.8.1 installed already you can obviously skip the first step
+as well as step three.</p>
+
+<p>Here we go:</p>
+
+<h4>Step 1.)<br/></h4>
+
+<p>Download <a href="http://archive.apache.org/dist/ant/">the latest Ant version</a> (1.8.1 at the time of writing)
+and put it wherever you like. As i&rsquo;m on OS X  i put it into <code>/usr/local/apache-ant-1.8.1/</code></p>
+
+<h4>Step 2.)<br/></h4>
+
+<p>Next step is to download and extract some additional JAR files.
+You&rsquo;ll need the <a href="http://java.sun.com/products/javamail/downloads/index.html"> JavaMail API</a> and
+the <a href="http://java.sun.com/products/javabeans/glasgow/jaf.html">NetBeans Activation Framework</a>.</p>
+
+<p>Extract and copy these files into either <code>~/.ant/lib/</code> or into the <code>lib</code> folder of your
+Ant installation directory. (To save you some time, i&rsquo;ve put these files into a zip at
+the end of the article. There may changes or updates over time but for now they should do the job)</p>
+
+<h4>Step 3.)<br/></h4>
+
+<p>The final step is to create or update the alias to the Ant binary.
+Open the Terminal again and use the following command.</p>
+
+<pre><code>sudo ln -s /usr/local/apache-ant-1.8.1/bin/ant /usr/bin/ant
+</code></pre>
+
+<p>(fit the paths to your needs if you&rsquo;ve choosen a different directory)</p>
+
+<p>If you got an error message, rename the current alias in <code>/usr/bin</code> to e.g. <code>ant-1.7.1</code></p>
+
+<p>Now the alias should point to your new Ant installation and <code>ant -version</code> should give you:
+<code>Apache Ant version 1.8.1 compiled on April 30 2010</code>.</p>
+
+<p>If you want to be the previous Ant version your default again, rename your <code>ant-1.7.1</code>
+to <code>ant</code> or create a new alias using the following command in the terminal.</p>
+
+<pre><code>sudo ln -s /usr/share/ant/bin/ant /usr/bin/ant
+</code></pre>
+
+<h4>Step 4.)<br/></h4>
+
+<p>The last step is to make the downloaded JAR available in the Eclipse environment.
+All you need to do is go to:</p>
+
+<pre><code>Preferences &gt; Ant &gt; Runtime &gt; Classpath &gt; Add External JARs
+</code></pre>
+
+<p>and select the downloaded JAR files.</p>
+
+<p>Thats pretty much all you have to do for preparation.<br/>
+Now let&rsquo;s see how an ant-target which makes usage of  the MailTask could look like.</p>
+
+<p>```xml</p>
+
+<pre><code>&lt;target name="send.mail" description="sends a notication mail"&gt;
+
+  &lt;property name="mail.host" value="mailserver.myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.port" value="25"&gt;&lt;/property&gt;
+  &lt;property name="mail.user" value="me@myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.pass" value="mysecretpassword"&gt;&lt;/property&gt;
+  &lt;property name="mail.from" value="me@myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.to" value="you@myprovider.com"&gt;&lt;/property&gt;
+
+  &lt;property name="subject"
+            value="Test Message sent via Ant MailTask"&gt;&lt;/property&gt;
+
+  &lt;property name="message"
+            value="Hello World, i was sent by the Ant MailTask"&gt;&lt;/property&gt;
+
+  &lt;mail mailport="${mail.port}" charset="UTF-8"
+        failonerror="true"
+        mailhost="${mail.host}"
+        user="${mail.user}"
+        password="${mail.pass}"
+        subject="${subject}"&gt;
+
+    &lt;from address="${mail.from}"&gt;&lt;/from&gt;
+    &lt;to address="${mail.to}"&gt;&lt;/to&gt;
+
+    &lt;message&gt;${message}&lt;/message&gt;
+
+    &lt;fileset dir="${basedir}"&gt;
+      &lt;include name="*.zip"&gt;&lt;/include&gt;
+    &lt;/fileset&gt;
+  &lt;/mail&gt;
+
+  &lt;tstamp&gt;
+    &lt;format pattern="MM/dd/yyyy hh:mm aa"
+            property="send.time"
+            unit="hour"&gt;&lt;/format&gt;
+  &lt;/tstamp&gt;
+
+  &lt;echo message="Mail successfully sent at ${send.time}"&gt;&lt;/echo&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>I think it is pretty self-explanatory. This would send an e-mail with
+the subject:<br/>
+&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#109;&#101;&#x40;&#109;&#121;&#112;&#114;&#111;&#118;&#105;&#100;&#x65;&#114;&#x2e;&#x63;&#x6f;&#x6d;">&#x6d;&#x65;&#64;&#109;&#121;&#112;&#x72;&#x6f;&#x76;&#105;&#100;&#x65;&#114;&#46;&#99;&#x6f;&#x6d;</a>&rdquo; to &ldquo;<a href="&#109;&#x61;&#105;&#108;&#x74;&#111;&#58;&#x79;&#x6f;&#117;&#64;&#109;&#x79;&#x70;&#114;&#111;&#x76;&#105;&#100;&#101;&#x72;&#x2e;&#x63;&#x6f;&#109;">&#x79;&#111;&#117;&#x40;&#x6d;&#121;&#x70;&#114;&#111;&#x76;&#x69;&#100;&#x65;&#114;&#46;&#x63;&#111;&#109;</a>&rdquo;
+with &ldquo;Hello World, i was sent by the Ant MailTask&rdquo; as message and all zip-files from
+the <code>basedir</code> as attachment.</p>
+
+<pre><code>From:    "me@myprovider.com"
+To:      "you@myprovider.com"
+Subject: "Test Message sent via Ant MailTask"
+Body:    "Hello World, i was sent by the Ant MailTask"
+</code></pre>
+
+<p>So far so good.</p>
+
+<p>Put this task into a <code>build.xml</code> (setup a <code>properties</code> file to make it more generic)
+and provide the appropriate credentials for your mail provider. Save it in your project
+directory or update your existing build file and run the following command in the terminal:</p>
+
+<pre><code>$ cd path/to/project
+$ ant send.mail
+</code></pre>
+
+<p>If everything worked as expected the output should look like this:</p>
+
+<pre><code>send.mail:
+     [mail] Sending email: Hello World, i was sent by the Ant MailTask
+     [mail] Sent email with 1 attachments
+     [echo] Mail successfully sent at 11/28/2010 04:17 PM
+
+BUILD SUCCESSFUL
+Total time: 1 second
+</code></pre>
+
+<p>Now insert the path to your <code>build.xml</code> in the <code>Ant Task</code> tab in your launch-configuration
+dialog and you&rsquo;re done. :)</p>
+
+<p>I use it now (in a more fine-grained setup) e.g. in the launch-configuration for my
+&lsquo;release-build&rsquo; to notify a customer about new versions, updates and so on.</p>
+
+<p>Hopefully you&rsquo;ve found some useful informations in this post. Thanks for reading and feel
+free to leave a comment or share it if you like.</p>
+
+<p>cheers,
+david</p>
+
+<!--Download: [Ant Mailtask JAR Files]()-->
+
+]]></content>
+  </entry>
+  
+</feed>

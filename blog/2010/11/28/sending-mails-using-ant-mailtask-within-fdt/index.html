@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sending Mails Using Ant MailTask FDT/Eclipse - 8ball-media</title>
+  <meta name="author" content="David Linse">
+
+  
+  <meta name="description" content="I always wanted to make use of the &ldquo;Post compile ant file&rdquo; from Eclipse.
+After hours of searching, trial and (mostly) error i finally got &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4078850-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">8ball-media</a></h1>
+  
+    <h2>little pieces from everything</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:davidlinse.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Sending Mails Using Ant MailTask FDT/Eclipse</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-28T22:06:26+01:00" pubdate data-updated="true">Nov 28<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I always wanted to make use of the &ldquo;Post compile ant file&rdquo; from Eclipse.
+After hours of searching, trial and (mostly) error i finally got it working.
+The Ant-MailTask sends a mail from within Eclipse including attachment.</p>
+
+<p>The downside is that i was unable to get this running with my default Ant installation (v.1.7.1)
+and had to install a newer version of Ant.</p>
+
+<p>I dont want to bore you with details of my odyssey but show you how it gets done in more or
+less four steps.</p>
+
+<!-- more -->
+
+
+<p>First check the version of your current Ant installation by typing
+<code>ant -version</code> in your Terminal which should give you something like:</p>
+
+<pre><code>Apache Ant version 1.8.1 compiled on April 30 2010
+</code></pre>
+
+<p>If you have the version 1.8.1 installed already you can obviously skip the first step
+as well as step three.</p>
+
+<p>Here we go:</p>
+
+<h4>Step 1.)<br/></h4>
+
+<p>Download <a href="http://archive.apache.org/dist/ant/">the latest Ant version</a> (1.8.1 at the time of writing)
+and put it wherever you like. As i&rsquo;m on OS X  i put it into <code>/usr/local/apache-ant-1.8.1/</code></p>
+
+<h4>Step 2.)<br/></h4>
+
+<p>Next step is to download and extract some additional JAR files.
+You&rsquo;ll need the <a href="http://java.sun.com/products/javamail/downloads/index.html"> JavaMail API</a> and
+the <a href="http://java.sun.com/products/javabeans/glasgow/jaf.html">NetBeans Activation Framework</a>.</p>
+
+<p>Extract and copy these files into either <code>~/.ant/lib/</code> or into the <code>lib</code> folder of your
+Ant installation directory. (To save you some time, i&rsquo;ve put these files into a zip at
+the end of the article. There may changes or updates over time but for now they should do the job)</p>
+
+<h4>Step 3.)<br/></h4>
+
+<p>The final step is to create or update the alias to the Ant binary.
+Open the Terminal again and use the following command.</p>
+
+<pre><code>sudo ln -s /usr/local/apache-ant-1.8.1/bin/ant /usr/bin/ant
+</code></pre>
+
+<p>(fit the paths to your needs if you&rsquo;ve choosen a different directory)</p>
+
+<p>If you got an error message, rename the current alias in <code>/usr/bin</code> to e.g. <code>ant-1.7.1</code></p>
+
+<p>Now the alias should point to your new Ant installation and <code>ant -version</code> should give you:
+<code>Apache Ant version 1.8.1 compiled on April 30 2010</code>.</p>
+
+<p>If you want to be the previous Ant version your default again, rename your <code>ant-1.7.1</code>
+to <code>ant</code> or create a new alias using the following command in the terminal.</p>
+
+<pre><code>sudo ln -s /usr/share/ant/bin/ant /usr/bin/ant
+</code></pre>
+
+<h4>Step 4.)<br/></h4>
+
+<p>The last step is to make the downloaded JAR available in the Eclipse environment.
+All you need to do is go to:</p>
+
+<pre><code>Preferences &gt; Ant &gt; Runtime &gt; Classpath &gt; Add External JARs
+</code></pre>
+
+<p>and select the downloaded JAR files.</p>
+
+<p>Thats pretty much all you have to do for preparation.<br/>
+Now let&rsquo;s see how an ant-target which makes usage of  the MailTask could look like.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;send.mail&quot;</span> <span class="na">description=</span><span class="s">&quot;sends a notication mail&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.host&quot;</span> <span class="na">value=</span><span class="s">&quot;mailserver.myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.port&quot;</span> <span class="na">value=</span><span class="s">&quot;25&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.user&quot;</span> <span class="na">value=</span><span class="s">&quot;me@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.pass&quot;</span> <span class="na">value=</span><span class="s">&quot;mysecretpassword&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.from&quot;</span> <span class="na">value=</span><span class="s">&quot;me@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.to&quot;</span> <span class="na">value=</span><span class="s">&quot;you@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;subject&quot;</span>
+</span><span class='line'>                <span class="na">value=</span><span class="s">&quot;Test Message sent via Ant MailTask&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;message&quot;</span>
+</span><span class='line'>                <span class="na">value=</span><span class="s">&quot;Hello World, i was sent by the Ant MailTask&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;mail</span> <span class="na">mailport=</span><span class="s">&quot;${mail.port}&quot;</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span>
+</span><span class='line'>            <span class="na">failonerror=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>            <span class="na">mailhost=</span><span class="s">&quot;${mail.host}&quot;</span>
+</span><span class='line'>            <span class="na">user=</span><span class="s">&quot;${mail.user}&quot;</span>
+</span><span class='line'>            <span class="na">password=</span><span class="s">&quot;${mail.pass}&quot;</span>
+</span><span class='line'>            <span class="na">subject=</span><span class="s">&quot;${subject}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;from</span> <span class="na">address=</span><span class="s">&quot;${mail.from}&quot;</span><span class="nt">&gt;&lt;/from&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;to</span> <span class="na">address=</span><span class="s">&quot;${mail.to}&quot;</span><span class="nt">&gt;&lt;/to&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;message&gt;</span>${message}<span class="nt">&lt;/message&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;${basedir}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;*.zip&quot;</span><span class="nt">&gt;&lt;/include&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/fileset&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/mail&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;tstamp&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;format</span> <span class="na">pattern=</span><span class="s">&quot;MM/dd/yyyy hh:mm aa&quot;</span>
+</span><span class='line'>                <span class="na">property=</span><span class="s">&quot;send.time&quot;</span>
+</span><span class='line'>                <span class="na">unit=</span><span class="s">&quot;hour&quot;</span><span class="nt">&gt;&lt;/format&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/tstamp&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;echo</span> <span class="na">message=</span><span class="s">&quot;Mail successfully sent at ${send.time}&quot;</span><span class="nt">&gt;&lt;/echo&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I think it is pretty self-explanatory. This would send an e-mail with
+the subject:<br/>
+&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#58;&#109;&#101;&#x40;&#109;&#121;&#x70;&#x72;&#111;&#118;&#105;&#x64;&#101;&#x72;&#x2e;&#99;&#111;&#109;">&#109;&#x65;&#64;&#109;&#121;&#112;&#x72;&#111;&#x76;&#x69;&#100;&#x65;&#114;&#46;&#99;&#x6f;&#x6d;</a>&rdquo; to &ldquo;<a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#121;&#x6f;&#117;&#x40;&#x6d;&#121;&#x70;&#x72;&#x6f;&#x76;&#105;&#x64;&#x65;&#x72;&#x2e;&#99;&#111;&#x6d;">&#x79;&#x6f;&#x75;&#x40;&#109;&#121;&#x70;&#x72;&#x6f;&#118;&#105;&#100;&#x65;&#114;&#x2e;&#x63;&#x6f;&#109;</a>&rdquo;
+with &ldquo;Hello World, i was sent by the Ant MailTask&rdquo; as message and all zip-files from
+the <code>basedir</code> as attachment.</p>
+
+<pre><code>From:    "me@myprovider.com"
+To:      "you@myprovider.com"
+Subject: "Test Message sent via Ant MailTask"
+Body:    "Hello World, i was sent by the Ant MailTask"
+</code></pre>
+
+<p>So far so good.</p>
+
+<p>Put this task into a <code>build.xml</code> (setup a <code>properties</code> file to make it more generic)
+and provide the appropriate credentials for your mail provider. Save it in your project
+directory or update your existing build file and run the following command in the terminal:</p>
+
+<pre><code>$ cd path/to/project
+$ ant send.mail
+</code></pre>
+
+<p>If everything worked as expected the output should look like this:</p>
+
+<pre><code>send.mail:
+     [mail] Sending email: Hello World, i was sent by the Ant MailTask
+     [mail] Sent email with 1 attachments
+     [echo] Mail successfully sent at 11/28/2010 04:17 PM
+
+BUILD SUCCESSFUL
+Total time: 1 second
+</code></pre>
+
+<p>Now insert the path to your <code>build.xml</code> in the <code>Ant Task</code> tab in your launch-configuration
+dialog and you&rsquo;re done. :)</p>
+
+<p>I use it now (in a more fine-grained setup) e.g. in the launch-configuration for my
+&lsquo;release-build&rsquo; to notify a customer about new versions, updates and so on.</p>
+
+<p>Hopefully you&rsquo;ve found some useful informations in this post. Thanks for reading and feel
+free to leave a comment or share it if you like.</p>
+
+<p>cheers,
+david</p>
+
+<!--Download: [Ant Mailtask JAR Files]()-->
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">David Linse</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-28T22:06:26+01:00" pubdate data-updated="true">Nov 28<span>th</span>, 2010</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>, <a class='category' href='/blog/categories/howto/'>howto</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/" title="Previous Post: How To Protect Your Game From Being Rebranded (AS2)">&laquo; How To Protect Your Game From Being Rebranded (AS2)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/" title="Next Post: How to send or receive JSON encoded data from flash to a server-side-script">How to send or receive JSON encoded data from flash to a server-side-script &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/">How to port WordPress blog entries to OctoPress .markdown files</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/03/status/">Status</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/">RCov::VerifyTask "threshold" auto-update monitor</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/davidlinse">@davidlinse</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'davidlinse',
+            count: 2,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.ready(function(){
+      getTwitterFeed("davidlinse", 5, true);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/davidlinse" class="twitter-follow-button" data-show-count="">Follow @davidlinse</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - David Linse -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

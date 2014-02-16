@@ -1,0 +1,542 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to send or receive JSON encoded data from flash to a server-side-script - 8ball-media</title>
+  <meta name="author" content="David Linse">
+
+  
+  <meta name="description" content="As contributor in some flash-related forums i noticed, that a lot of people are asking
+the same question over and over again. How to send or receive &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4078850-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">8ball-media</a></h1>
+  
+    <h2>little pieces from everything</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:davidlinse.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to send or receive JSON encoded data from flash to a server-side-script</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-12-07T18:42:31+01:00" pubdate data-updated="true">Dec 7<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>As contributor in some flash-related forums i noticed, that a lot of people are asking
+the same question over and over again.</p>
+
+<blockquote><p>How to send or receive JSON-encoded data from flash to a server-side-script</p></blockquote>
+
+<p>In this little &ldquo;tutorial&rdquo; we&rsquo;ll send an arbitrary JSON-encoded <code>Object</code> from flash
+to our server-script, alter the value of its property and send it; even JSON encoded;
+back from the server to flash.</p>
+
+<!--more-->
+
+
+<p>First we need to know how the object looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">Object</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>    <span class="c1">// this is the property we want to change</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s do the server-side script which receives and sends our JSON endcoded data.</p>
+
+<p>Here is a little example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// only continue if data is sent in the &#39;data&#39; property</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// retrieve the sent data</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">urldecode</span><span class="p">(</span><span class="nb">utf8_decode</span><span class="p">(</span><span class="nb">stripslashes</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// re-create the sent object &lt;code&gt;person&lt;/code&gt;</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$decoded_person</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span> <span class="nv">$data</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// the ravages of time</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nx">happy_birthday</span><span class="p">(</span> <span class="nv">$decoded_person</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// prepare the data for sending back to flash</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$encoded_person</span> <span class="o">=</span> <span class="nb">json_encode</span><span class="p">(</span> <span class="nv">$decoded_person</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// send</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="nv">$encoded_person</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// increase the &lt;code&gt;age&lt;/code&gt; property</span>
+</span><span class='line'><span class="c1">// of &lt;code&gt;person&lt;/code&gt; and return the object</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">happy_birthday</span> <span class="p">(</span> <span class="nv">$person</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$person</span><span class="o">-&gt;</span><span class="na">age</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$person</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="k">import</span> <span class="nn">com.adobe.serialization.json.JSON</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// URLLoader event-handler</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">function </span><span class="nf">completeHandler</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="kt">Event</span><span class="o">):</span><span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;::complete()&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--received: &#39;</span><span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function </span><span class="nf">ioHandler</span> <span class="o">(</span><span class="n">evt</span><span class="o">:</span><span class="kt">IOErrorEvent</span><span class="o">):</span> <span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s2">&quot;::IOError()n&quot;</span><span class="o">+</span> <span class="n">evt</span><span class="o">.</span><span class="na">text</span> <span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function </span><span class="nf">securityHandler</span> <span class="o">(</span><span class="n">evt</span><span class="o">:</span><span class="kt">SecurityErrorEvent</span><span class="o">):</span> <span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s2">&quot;::SecurityError()n&quot;</span><span class="o">+</span> <span class="n">evt</span><span class="o">.</span><span class="na">text</span> <span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// setup the data we want to send</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span>  <span class="o">=</span> <span class="k">new</span> <span class="kt">Object</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="n">encoded_person</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+</span><span class='line'><span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--sending: &#39;</span><span class="o">+</span> <span class="n">encoded_person</span><span class="o">);</span> <span class="c1">// {&quot;age&quot;:17}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// encode and store the data</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">vars</span><span class="p">:</span> <span class="kt">URLVariables</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLVariables</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">vars</span><span class="o">.</span><span class="na">data</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="n">request</span><span class="p">:</span> <span class="kt">URLRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLRequest</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">url</span>    <span class="o">=</span> <span class="s2">&quot;http://localhost/data.php&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">data</span>   <span class="o">=</span> <span class="n">vars</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">method</span> <span class="o">=</span> <span class="n">URLRequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// add event listener and sent the encoded data</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">loader</span><span class="p">:</span> <span class="kt">URLLoader</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLLoader</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">Event</span><span class="o">.</span><span class="na">COMPLETE</span><span class="o">,</span> <span class="n">completeHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">IOErrorEvent</span><span class="o">.</span><span class="na">IO_ERROR</span><span class="o">,</span> <span class="n">ioHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">SecurityErrorEvent</span><span class="o">.</span><span class="na">SECURITY_ERROR</span><span class="o">,</span> <span class="n">securityHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If all&rsquo;s gone well you should see the following output..</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="o">--</span><span class="n">sending</span><span class="o">:</span> <span class="o">{</span><span class="s2">&quot;age&quot;</span><span class="o">:</span><span class="mi">17</span><span class="o">}</span>
+</span><span class='line'><span class="o">::</span><span class="n">complete</span><span class="o">()</span>
+</span><span class='line'><span class="o">--</span><span class="n">received</span><span class="o">:</span> <span class="o">{</span><span class="s2">&quot;age&quot;</span><span class="o">:</span><span class="mi">18</span><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Et voila..</p>
+
+<p>Now you just need to decode the data in the <code>completeHandler</code> like so, and you&rsquo;ll have your object with the changed value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="kd">function </span><span class="nf">completeHandler</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="kt">Event</span><span class="o">):</span><span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;::complete()&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--received: &#39;</span><span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--age is now: &#39;</span><span class="o">+</span> <span class="n">person</span><span class="o">.</span><span class="na">age</span><span class="o">);</span>  <span class="c1">// 18</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">catch</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="n">Error</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;ERROR - could not decode data..&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and thats it..</p>
+
+<p>If you find this useful feel free to share or leave a comment if you like.
+Thanks for reading..</p>
+
+<p>~ David</p>
+
+<!--
+Download: [as3.json.encoding.zip](http://8ball-media.de/wp/wp-content/uploads/2010/05/as3.json_.encoding.zip)
+-->
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">David Linse</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-12-07T18:42:31+01:00" pubdate data-updated="true">Dec 7<span>th</span>, 2010</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/as3/'>AS3</a>, <a class='category' href='/blog/categories/experiments/'>experiments</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/" title="Previous Post: Sending Mails Using Ant MailTask FDT/Eclipse">&laquo; Sending Mails Using Ant MailTask FDT/Eclipse</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/05/07/keep-your-bash_history-entries-unique/" title="Next Post: Keep your ~/.bash_history entries unique">Keep your ~/.bash_history entries unique &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/">How to port WordPress blog entries to OctoPress .markdown files</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/03/status/">Status</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/">RCov::VerifyTask "threshold" auto-update monitor</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/davidlinse">@davidlinse</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'davidlinse',
+            count: 2,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.ready(function(){
+      getTwitterFeed("davidlinse", 5, true);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/davidlinse" class="twitter-follow-button" data-show-count="">Follow @davidlinse</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - David Linse -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How To Protect Your Game From Being Rebranded (AS2) - 8ball-media</title>
+  <meta name="author" content="David Linse">
+
+  
+  <meta name="description" content="Eric Heimburg from FlashGameLicense.com wrote an article about
+How to protect your game from beeing rebranded for Actionscript3. Because i&rsquo;m &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4078850-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">8ball-media</a></h1>
+  
+    <h2>little pieces from everything</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:davidlinse.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How To Protect Your Game From Being Rebranded (AS2)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-21T18:29:41+01:00" pubdate data-updated="true">Nov 21<span>st</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Eric Heimburg from <a href="http://flashgamelicense.com">FlashGameLicense.com</a> wrote an article about
+<a href="http://www.flashgamelicense.com/blog/2010/11/how-to-protect-your-game-from-being-rebranded/">How to protect your game from beeing rebranded</a> for Actionscript3.</p>
+
+<p>Because i&rsquo;m developing flash-based-games here and there i found this article quite interesting. After reading this post i digged in my old experiments from the good old Actionscript2 times to get familiar again with the syntax. It&rsquo;s been &lsquo;a couple of days&rsquo; since i wrote my last lines of code in AS2. But following the idea of Eric the code is pretty much the same exept a few loops more.</p>
+
+<!-- more -->
+
+
+<p><strong>Important Note:</strong> As stated in the article this makes only sense if you&rsquo;re obfuscating your code using one of the encryption tools out there !</p>
+
+<p>Back to topic, here is what it will look like in <em>Actionscript 2</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="kd">var</span> <span class="n">bmp</span><span class="p">:</span> <span class="kt">BitmapData</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">BitmapData</span><span class="o">(</span><span class="mi">300</span><span class="o">,</span> <span class="mi">225</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">y</span><span class="o">&lt;</span><span class="n">h</span><span class="o">;</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="n">result</span><span class="o">);</span> <span class="c1">// e.g. 556977304436</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For an image with e.g. 300x225 pixel it took about 90ms to summarize the &ldquo;checksum&rdquo;.
+Below a little overview of my results for some image sizes.</p>
+
+<ul>
+<li>640x480 &ndash; 379 ms</li>
+<li>800x600 &ndash; 547 ms</li>
+<li>1024x768 &ndash; 1436 ms</li>
+</ul>
+
+
+<p>Hm, approx 1.5 secs for an 1024x768 pixel sized image. This is a quite noticable duration.
+Especially when you are loading a lot of large scaled images or have a lot of them in your library this would affect the user experience in a negative way.</p>
+
+<p>To see if we can push this a bit further and how much this could be speed up i wrote some test-methods.
+My first idea was to take just a 1-pixel line in the horzontal and the vertical direction.</p>
+
+<p>Which would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Summarize the color-values of a 1-pixel line in horizontal</span>
+</span><span class='line'><span class="cm">     * and vertical direction to build a checksum-like value for</span>
+</span><span class='line'><span class="cm">     * the passed BitmapData object.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * @param   bmp The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @param   offset  The offset for x and y (optional); default (10)</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">horizontal_vertical</span> <span class="o">(</span><span class="n">bmp</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">,</span> <span class="n">offset</span><span class="o">:</span><span class="kt">Number</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="n">offset</span> <span class="o">==</span> <span class="kc">undefined</span><span class="o">)</span> <span class="o">?</span> <span class="mi">10</span> <span class="o">:</span> <span class="n">offset</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">offset</span><span class="o">;</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">offset</span><span class="o">;</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">h</span><span class="o">;</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second way is to get the values from the diagonales in both directions. Which means from &ldquo;top-left&rdquo; to &ldquo;bottom-right&rdquo; and from &ldquo;top-right&rdquo; to &ldquo;bottom-left&rdquo;. Here is the method for it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Summarize the color-values of a 1-pixel line in both</span>
+</span><span class='line'><span class="cm">     * diagonal directions to build a checksum-like value for</span>
+</span><span class='line'><span class="cm">     * the passed BitmapData object.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * @param   o The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">diagonal</span> <span class="o">(</span><span class="n">o</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++,</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">o</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">--,</span> <span class="n">y</span><span class="o">--)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">o</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And finally a method to combine the both values but this one is more for &ldquo;cosmetic&rdquo; purposes.. ;)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * combine the results of horizontal and diagonal checksum values</span>
+</span><span class='line'><span class="cm">     * @param   bmp The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">combined</span> <span class="o">(</span><span class="n">bmp</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">horizontal_vertical</span><span class="o">(</span><span class="n">bmp</span><span class="o">)</span> <span class="o">+</span> <span class="n">diagonal</span><span class="o">(</span><span class="n">bmp</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now it&rsquo;s time to measure the execution times for the test-methods. Lets do this quick and simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="kd">var</span> <span class="n">t1</span><span class="p">:</span> <span class="kt">Number</span>  <span class="o">=</span> <span class="nf">getTimer</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">chk</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">combined</span> <span class="o">(</span><span class="n">bmp</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">t2</span><span class="p">:</span> <span class="kt">Number</span>  <span class="o">=</span> <span class="nf">getTimer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;combined&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39; - executed in: &#39;</span><span class="o">+</span> <span class="o">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="o">)</span> <span class="o">+</span><span class="s1">&#39; ms&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39; - version: &#39;</span> <span class="o">+</span> <span class="n">chk</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// combined</span>
+</span><span class='line'>    <span class="c1">// - executed in: 9 ms</span>
+</span><span class='line'>    <span class="c1">// - version: 11356386289</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>9ms! That&rsquo;s nice, right ? And you know what ? This is the execution time for a <em>1024x768</em> pixel image ! So as you can see, even with a large image its incredebly fast.
+To complete the overview, here my results for the other image sizes and the #combine-method.</p>
+
+<ul>
+<li>640x480 &ndash; 5 ms</li>
+<li>800x600 &ndash; 6 ms</li>
+<li>1024x768 &ndash; 9 ms</li>
+</ul>
+
+
+<p>They may vary on different hardware setups but i thinks it&rsquo;s performant enough to use it even on older machines.</p>
+
+<p>// results for an image with <em>1024x768</em> pixel</p>
+
+<ul>
+<li>complete
+
+<ul>
+<li>executed in: 1214 ms</li>
+<li>version: 4442572803510</li>
+</ul>
+</li>
+<li>horizontal/vertical
+
+<ul>
+<li>executed in: 3 ms</li>
+<li>version: 2505805708</li>
+</ul>
+</li>
+<li>diagonal
+
+<ul>
+<li>executed in: 5 ms</li>
+<li>version: 8850580581</li>
+</ul>
+</li>
+<li>combined
+
+<ul>
+<li>executed in: 9 ms</li>
+<li>version: 11356386289</li>
+</ul>
+</li>
+</ul>
+
+
+<p>The validation part is pretty much the same as in Actionscript3 so read the article mentioned above to see implementation details.</p>
+
+<p>After all i think this approach produces a reasonable checksum value and is fast enough and to use it your daily workflow as (game)-developer.<br/></p>
+
+<p>Thanks for reading. Feel free to share this or leave a comment.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">David Linse</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-11-21T18:29:41+01:00" pubdate data-updated="true">Nov 21<span>st</span>, 2010</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/09/10/eclipse-adt-plugin-update/" title="Previous Post: Eclipse ADT Plugin Update">&laquo; Eclipse ADT Plugin Update</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/" title="Next Post: Sending Mails Using Ant MailTask FDT/Eclipse">Sending Mails Using Ant MailTask FDT/Eclipse &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/">How to port WordPress blog entries to OctoPress .markdown files</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/03/status/">Status</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/">RCov::VerifyTask "threshold" auto-update monitor</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/davidlinse">@davidlinse</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'davidlinse',
+            count: 2,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.ready(function(){
+      getTwitterFeed("davidlinse", 5, true);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/davidlinse" class="twitter-follow-button" data-show-count="">Follow @davidlinse</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - David Linse -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

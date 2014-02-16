@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Status - 8ball-media</title>
+  <title>RCov::VerifyTask "threshold" auto-update monitor - 8ball-media</title>
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="It&rsquo;s literally has been a while since my last post. Meanwhile I was allowed to play around with: CJS and AMD modules
-Backbone, Twitter &hellip;">
+  <meta name="description" content="When developing TDD or BDD in Ruby (1.9.2) using the RCov::VerifyTask
+you need to fullfill a certain threshold to make a build successful. It can be &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@ Backbone, Twitter &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://davidlinse.github.io/blog/2013/10/03/status">
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
@@ -81,7 +81,7 @@ Backbone, Twitter &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Status</h1>
+      <h1 class="entry-title">RCov::VerifyTask "threshold" auto-update monitor</h1>
     
     
       <p class="meta">
@@ -97,32 +97,157 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-10-03T03:46:22+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&rsquo;s literally has been a while since my last post.</p>
+<div class="entry-content"><p>When developing TDD or BDD in <code>Ruby (1.9.2)</code> using the <code>RCov::VerifyTask</code>
+you need to fullfill a certain <code>threshold</code> to make a build successful.</p>
 
-<p>Meanwhile I was allowed to play around with:</p>
+<p>It can be quite annoying to update the (hopefully) increased <code>threshold</code> of the
+<code>RCov::VerifyTask</code> in your <code>Rakefile</code> after each successful build.
+So I did some experiments and the following script is the result.</p>
 
-<ul>
-<li>CJS and AMD modules</li>
-<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
-<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
-<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
-<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
-<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
-</ul>
+<!-- more -->
 
 
-<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma&#8217;, i&rsquo;m a JavaScript dude now)</em>.</p>
+<p>A common <a href="http://rspec.rubyforge.org/rspec/1.2.6/classes/RCov/VerifyTask.html"><code>RCov::VerifyTask</code></a> setup might look like:</p>
 
-<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
+<pre><code> Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
 
-<p>~david</p>
+
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+   t.threshold   = 10.00                     # to get started
+   t.index_html  = 'coverage/index.html'     # the path to html report
+ end
+</code></pre>
+
+<p>It uses another <code>:task</code> to capture the output of the actual <code>RCov::VerifyTask</code>
+and writes the <code>threshold</code> into a <code>coverage.yml</code> file. This <code>threshold</code> value
+is taken into comparison at the next build and updated at next build if
+its <code>value</code> has increased.</p>
+
+<p>First the method to read and write the <code>threshold</code> value from/to
+a <code>./coverage.yml</code>.</p>
+
+<pre><code> # the `log' file in `yaml' format
+ #
+ COVERAGE_YML   = 'coverage.yml'
+
+ # read the last 'threshold' from the .yml file
+ # and return `10.0' as value if the file isn't existant
+ #
+ def read_yaml_threshold
+
+   threshold = 10.0
+
+   return threshold unless File.exist? COVERAGE_YML
+
+   yaml  = read_yaml_file COVERAGE_YML
+
+   threshold = yaml["THRESHOLD"].to_s
+
+   threshold.to_f
+ end
+
+
+ # write the given `value' in `yaml' format
+ # back into `log' file.
+ #
+ def write_yaml_threshold value
+   File.open(COVERAGE_YML, 'w') do |f|
+     f.write({"THRESHOLD" =&gt; value}.to_yaml)
+   end
+ end
+</code></pre>
+
+<p>Now the updated rake tasks.</p>
+
+<pre><code> # read the previous threshold once and
+ # reuse it in tasks to reduce file-access
+ #
+ @old_threshold = read_yaml_threshold
+
+
+ # the SpecTask from above
+ #
+ desc "Run all rspec tests with RCOV"
+ Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ # the "verify" task which is still executable
+ # because the`threshold' property contains the
+ # current `threhold' value from `coverage.yml'
+ #
+ desc "Check code-coverage of project"
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+
+   threshold   = @old_threshold
+
+   Rake::Task['rcov'].execute
+
+   t.threshold   = threshold
+   t.index_html  = 'coverage/index.html'
+ end
+
+
+ # the actual 'capture and update' task which retrieves the 'previous'
+ # threshold and executes the `VerifyTask' and captures the 'new' threshold
+ # and finally compares them. if `new' threshold has increased the
+ # `coverage.yml' is updated.
+ #
+ task :run_verify do |t|
+
+     old_threshold = @old_threshold
+
+     log = `rake verify_rcov -f #{__FILE__}` # | tee coverage_log.txt`
+
+     new_threshold = threshold_from log
+
+     if new_threshold.to_f &gt; old_threshold.to_f
+
+       begin
+         write_yaml_threshold new_threshold
+       rescue =&gt; e
+         puts "ERROR #{e.message} "
+       end
+
+       puts "Finished ..."
+
+     else
+       if new_threshold.to_f &gt;= old_threshold.to_f
+         puts "Finished with `coverage' of #{new_threshold}% ..."
+       else
+         puts "Failed to finish with `coverage' of #{old_threshold}% =&gt; #{new_threshold}% ..."
+       end
+     end
+ end
+</code></pre>
+
+<p>Although i&rsquo;m quite happy with it as it works for me i would like to see if either
+there&rsquo;s a more convenient or `nerdy&#8217; way to implement this. I&rsquo;m still learning and
+every input is highly appreciated. :)</p>
+
+<p>If you found this useful feel free to share or comment.</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
 </div>
 
 
@@ -145,12 +270,12 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-10-03T03:46:22+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2011</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/stuff/'>stuff</a>
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>, <a class='category' href='/blog/categories/howto/'>howto</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
   
 </span>
 
@@ -159,7 +284,7 @@ Backbone, Twitter &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2013/10/03/status/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2013/10/03/status/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" >Tweet</a>
   
   
   
@@ -168,10 +293,10 @@ Backbone, Twitter &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Previous Post: RCov::VerifyTask "threshold" auto-update monitor">&laquo; RCov::VerifyTask "threshold" auto-update monitor</a>
+        <a class="basic-alignment left" href="/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/" title="Previous Post: Tweaking Flash (CS5) - Duplicate Symbol Dialog">&laquo; Tweaking Flash (CS5) - Duplicate Symbol Dialog</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/01/31/picks-of-the-month/" title="Next Post: picks of the month #1">picks of the month #1 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2013/10/03/status/" title="Next Post: Status">Status &raquo;</a>
       
     </p>
   </footer>

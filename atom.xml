@@ -4,7 +4,7 @@
   <title><![CDATA[8ball-media]]></title>
   <link href="http://davidlinse.github.io/atom.xml" rel="self"/>
   <link href="http://davidlinse.github.io/"/>
-  <updated>2014-02-16T15:11:24+01:00</updated>
+  <updated>2014-02-16T16:28:49+01:00</updated>
   <id>http://davidlinse.github.io/</id>
   <author>
     <name><![CDATA[David Linse]]></name>
@@ -199,6 +199,1611 @@ you&rsquo;re done!</p>
 <p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
 
 <p>~david</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RCov::VerifyTask "threshold" auto-update monitor]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/"/>
+    <updated>2011-10-03T03:46:22+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor</id>
+    <content type="html"><![CDATA[<p>When developing TDD or BDD in <code>Ruby (1.9.2)</code> using the <code>RCov::VerifyTask</code>
+you need to fullfill a certain <code>threshold</code> to make a build successful.</p>
+
+<p>It can be quite annoying to update the (hopefully) increased <code>threshold</code> of the
+<code>RCov::VerifyTask</code> in your <code>Rakefile</code> after each successful build.
+So I did some experiments and the following script is the result.</p>
+
+<!-- more -->
+
+
+<p>A common <a href="http://rspec.rubyforge.org/rspec/1.2.6/classes/RCov/VerifyTask.html"><code>RCov::VerifyTask</code></a> setup might look like:</p>
+
+<pre><code> Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+   t.threshold   = 10.00                     # to get started
+   t.index_html  = 'coverage/index.html'     # the path to html report
+ end
+</code></pre>
+
+<p>It uses another <code>:task</code> to capture the output of the actual <code>RCov::VerifyTask</code>
+and writes the <code>threshold</code> into a <code>coverage.yml</code> file. This <code>threshold</code> value
+is taken into comparison at the next build and updated at next build if
+its <code>value</code> has increased.</p>
+
+<p>First the method to read and write the <code>threshold</code> value from/to
+a <code>./coverage.yml</code>.</p>
+
+<pre><code> # the `log' file in `yaml' format
+ #
+ COVERAGE_YML   = 'coverage.yml'
+
+ # read the last 'threshold' from the .yml file
+ # and return `10.0' as value if the file isn't existant
+ #
+ def read_yaml_threshold
+
+   threshold = 10.0
+
+   return threshold unless File.exist? COVERAGE_YML
+
+   yaml  = read_yaml_file COVERAGE_YML
+
+   threshold = yaml["THRESHOLD"].to_s
+
+   threshold.to_f
+ end
+
+
+ # write the given `value' in `yaml' format
+ # back into `log' file.
+ #
+ def write_yaml_threshold value
+   File.open(COVERAGE_YML, 'w') do |f|
+     f.write({"THRESHOLD" =&gt; value}.to_yaml)
+   end
+ end
+</code></pre>
+
+<p>Now the updated rake tasks.</p>
+
+<pre><code> # read the previous threshold once and
+ # reuse it in tasks to reduce file-access
+ #
+ @old_threshold = read_yaml_threshold
+
+
+ # the SpecTask from above
+ #
+ desc "Run all rspec tests with RCOV"
+ Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ # the "verify" task which is still executable
+ # because the`threshold' property contains the
+ # current `threhold' value from `coverage.yml'
+ #
+ desc "Check code-coverage of project"
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+
+   threshold   = @old_threshold
+
+   Rake::Task['rcov'].execute
+
+   t.threshold   = threshold
+   t.index_html  = 'coverage/index.html'
+ end
+
+
+ # the actual 'capture and update' task which retrieves the 'previous'
+ # threshold and executes the `VerifyTask' and captures the 'new' threshold
+ # and finally compares them. if `new' threshold has increased the
+ # `coverage.yml' is updated.
+ #
+ task :run_verify do |t|
+
+     old_threshold = @old_threshold
+
+     log = `rake verify_rcov -f #{__FILE__}` # | tee coverage_log.txt`
+
+     new_threshold = threshold_from log
+
+     if new_threshold.to_f &gt; old_threshold.to_f
+
+       begin
+         write_yaml_threshold new_threshold
+       rescue =&gt; e
+         puts "ERROR #{e.message} "
+       end
+
+       puts "Finished ..."
+
+     else
+       if new_threshold.to_f &gt;= old_threshold.to_f
+         puts "Finished with `coverage' of #{new_threshold}% ..."
+       else
+         puts "Failed to finish with `coverage' of #{old_threshold}% =&gt; #{new_threshold}% ..."
+       end
+     end
+ end
+</code></pre>
+
+<p>Although i&rsquo;m quite happy with it as it works for me i would like to see if either
+there&rsquo;s a more convenient or `nerdy&#8217; way to implement this. I&rsquo;m still learning and
+every input is highly appreciated. :)</p>
+
+<p>If you found this useful feel free to share or comment.</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tweaking Flash (CS5) - Duplicate Symbol Dialog]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/"/>
+    <updated>2011-08-09T21:39:39+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog</id>
+    <content type="html"><![CDATA[<p>If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of <em>Adobe Flash CS5</em> maybe here&rsquo;s a solution.</p>
+
+<!-- more -->
+
+
+<h5>The situation<br/></h5>
+
+<p>By default the name for a new duplicated symbol is something like this:</p>
+
+<ul>
+<li><code>Kopie von NAME_OF_SYMBOL</code> .. (german)</li>
+<li><code>Copy of NAME_OF_SYMBOL</code> .. (english)</li>
+</ul>
+
+
+<p>How ugly is that ? Instead of just hitting the backspace to remove the &ldquo;copy-part&rdquo;
+you have to use the mouse and/or several key strokes to get rid of it.<br/>
+I want it more like this:</p>
+
+<ul>
+<li> <code>NAME_OF_SYMBOL Kopie</code></li>
+<li> <code>NAME_OF_SYMBOL copy</code></li>
+</ul>
+
+
+<p>So here is how to do it ..</p>
+
+<h5>The solution<br/></h5>
+
+<p>Close your Flash if it&rsquo;s running and go for a hunt for a file named <em>&ldquo;fl_dictionary.dat&rdquo;</em>
+and open it in your favourite editor. It&rsquo;s a alway a good idea to make a backup before
+making any changes. ;)</p>
+
+<p>Assuming you&rsquo;ve got installed <a href="http://macromates.com" title="Textmate">Textmate</a> and you&rsquo;re on:</p>
+
+<ul>
+<li><p> OSX, in a terminal it is:</p>
+
+<p>   <code>find /Applications -iname "fl_dictionary.dat" -print0 | xargs -0 mate</code></p></li>
+<li><p> M$, in the shell it is:</p>
+
+<p>   <code>.. uhm, could you provide something .. ?</code> (leave a comment and i&rsquo;ll add it &hellip;)</p></li>
+</ul>
+
+
+<p>Now search for <code>"Kopie von %s"</code> or  <code>"Copy of %s"</code> (without the quotes)
+and change it to what ever you want to see when duplicating a symbol.
+The <code>%s</code> is the placeholder for the symbol you&rsquo;re going to duplicate later.
+I changed my to &ldquo;<code>%s copy</code>&rdquo; which gives me the above mentioned format of <code>NAME_OF_SYMBOL copy</code>.<br/>
+Save the file restart Flash and (hopefully) you&rsquo;ll see your made changes.</p>
+
+<p>That&rsquo;s it ..<br/>
+Feel free to spread and or leave a comment below..</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Some Ruby Idioms]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms/"/>
+    <updated>2011-06-12T23:00:25+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms</id>
+    <content type="html"><![CDATA[<p>A post as a note to myself to remember some Ruby Idioms ..</p>
+
+<pre><code> # $ruby 1.9.2
+ #
+ # Add a value to an array unless its not
+ # contained already and even it's contained
+ # multiple times reduce it to a single occurence.
+
+ foo  = ['bar', 'baz', 'baz']    # =&gt;  ["bar", "baz", "baz"]
+ foo |= ['baz']                  # =&gt;  ["bar", "baz"]
+
+ # Parallel assignment by "un-splatting" an result array
+ # Instead of:
+ match = "Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
+ catch = match[1]
+
+ # Use:
+ catch, match = *"Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
+
+ # catch =&gt; "Ruby 1.9.2 is awesome"
+ # match =&gt; "1.9.2"
+</code></pre>
+
+<p>more to come..</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Keep your ~/.bash_history entries unique]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique/"/>
+    <updated>2011-05-07T11:00:58+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique</id>
+    <content type="html"><![CDATA[<p>When often using the terminal you don&rsquo;t want to type certain commands over and over again. Although recent commands are stored in the <code>.bash_history</code> in your home-directory they will be overwritten at some point when a new terminal is opened. So you won&rsquo;t be able to use <code>Ctrl + R</code> to search for commands you&rsquo;ve typed longer time ago.
+Luckily there is an option to append the terminal commands instead of overwriting them.</p>
+
+<!-- more -->
+
+
+<pre><code>$ shopt -s histappend
+</code></pre>
+
+<p>Add this command to your <code>~/.bash_profile</code> and you&rsquo;ll never lose a command anymore.
+As a side effect the <code>.bash_history</code> file will grow over time as well as be poluted with a lot of redundant commands.
+So i wrote a little ruby script to keep the <code>~/.bash_profile</code> commands unique.</p>
+
+<p>Here we go..</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> #!/usr/bin/env ruby
+</span><span class='line'> # Ruby 1.9.2
+</span><span class='line'> # encoding: utf-8
+</span><span class='line'>
+</span><span class='line'> # This little script keeps the entries in the ~/.bash_history file unique
+</span><span class='line'> # Might be useful when working with: $ shopt -s histappend
+</span><span class='line'> #
+</span><span class='line'> # author   david linse (david@8ball-media.de)
+</span><span class='line'> # version  0.0.1
+</span><span class='line'>
+</span><span class='line'> history_path = "/Users/#{ENV['USER']}"
+</span><span class='line'> history_file = ".bash_history"
+</span><span class='line'>
+</span><span class='line'> history = File.join history_path, history_file
+</span><span class='line'>
+</span><span class='line'> entries = Array.new
+</span><span class='line'> uniques = Array.new
+</span><span class='line'>
+</span><span class='line'> begin
+</span><span class='line'>   file = File.open(history).each do |line|
+</span><span class='line'>     entries.push line
+</span><span class='line'>   end
+</span><span class='line'> rescue
+</span><span class='line'>   abort "nError! could not find: #{history} ..n "
+</span><span class='line'> end
+</span><span class='line'>
+</span><span class='line'> uniques = entries.uniq
+</span><span class='line'> removed = (entries.size - uniques.size).to_s
+</span><span class='line'>
+</span><span class='line'> output = File.new(history, "w+")
+</span><span class='line'> output.write(uniques)
+</span><span class='line'> output.close
+</span><span class='line'>
+</span><span class='line'> file.close
+</span><span class='line'>
+</span><span class='line'> msg = ''
+</span><span class='line'> msg &lt;&lt; "nBash History Uniquifiern
+</span><span class='line'> Removed #{removed} entries from #{entries.size},
+</span><span class='line'> now #{uniques.size} in #{history}n "
+</span><span class='line'>
+</span><span class='line'> puts msg</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can use and/or modify it to your own needs.
+Maybe there is someone of you who&rsquo;s running Ruby on an Windowz
+machine and could implement an appropriate modification and post it back?</p>
+
+<p>That&rsquo;s it, more simple ruby stuff to come..<br/>
+Thanks for reading and feel free to leave a comment.</p>
+
+<p>~ David</p>
+
+<p><em>Update:</em> I added some error handling for the case the history does not exist.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to send or receive JSON encoded data from flash to a server-side-script]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/"/>
+    <updated>2010-12-07T18:42:31+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3</id>
+    <content type="html"><![CDATA[<p>As contributor in some flash-related forums i noticed, that a lot of people are asking
+the same question over and over again.</p>
+
+<blockquote><p>How to send or receive JSON-encoded data from flash to a server-side-script</p></blockquote>
+
+<p>In this little &ldquo;tutorial&rdquo; we&rsquo;ll send an arbitrary JSON-encoded <code>Object</code> from flash
+to our server-script, alter the value of its property and send it; even JSON encoded;
+back from the server to flash.</p>
+
+<!--more-->
+
+
+<p>First we need to know how the object looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">Object</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>    <span class="c1">// this is the property we want to change</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s do the server-side script which receives and sends our JSON endcoded data.</p>
+
+<p>Here is a little example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="o">&lt;?</span><span class="nx">php</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// only continue if data is sent in the &#39;data&#39; property</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// retrieve the sent data</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$data</span> <span class="o">=</span> <span class="nb">urldecode</span><span class="p">(</span><span class="nb">utf8_decode</span><span class="p">(</span><span class="nb">stripslashes</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// re-create the sent object &lt;code&gt;person&lt;/code&gt;</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$decoded_person</span> <span class="o">=</span> <span class="nb">json_decode</span><span class="p">(</span> <span class="nv">$data</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// the ravages of time</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nx">happy_birthday</span><span class="p">(</span> <span class="nv">$decoded_person</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// prepare the data for sending back to flash</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="nv">$encoded_person</span> <span class="o">=</span> <span class="nb">json_encode</span><span class="p">(</span> <span class="nv">$decoded_person</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// send</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="nv">$encoded_person</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// increase the &lt;code&gt;age&lt;/code&gt; property</span>
+</span><span class='line'><span class="c1">// of &lt;code&gt;person&lt;/code&gt; and return the object</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="k">function</span> <span class="nf">happy_birthday</span> <span class="p">(</span> <span class="nv">$person</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$person</span><span class="o">-&gt;</span><span class="na">age</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nv">$person</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="cp">?&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="k">import</span> <span class="nn">com.adobe.serialization.json.JSON</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// URLLoader event-handler</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">function </span><span class="nf">completeHandler</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="kt">Event</span><span class="o">):</span><span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;::complete()&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--received: &#39;</span><span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function </span><span class="nf">ioHandler</span> <span class="o">(</span><span class="n">evt</span><span class="o">:</span><span class="kt">IOErrorEvent</span><span class="o">):</span> <span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s2">&quot;::IOError()n&quot;</span><span class="o">+</span> <span class="n">evt</span><span class="o">.</span><span class="na">text</span> <span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function </span><span class="nf">securityHandler</span> <span class="o">(</span><span class="n">evt</span><span class="o">:</span><span class="kt">SecurityErrorEvent</span><span class="o">):</span> <span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s2">&quot;::SecurityError()n&quot;</span><span class="o">+</span> <span class="n">evt</span><span class="o">.</span><span class="na">text</span> <span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// setup the data we want to send</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span>  <span class="o">=</span> <span class="k">new</span> <span class="kt">Object</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">person</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="n">encoded_person</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+</span><span class='line'><span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--sending: &#39;</span><span class="o">+</span> <span class="n">encoded_person</span><span class="o">);</span> <span class="c1">// {&quot;age&quot;:17}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// encode and store the data</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">vars</span><span class="p">:</span> <span class="kt">URLVariables</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLVariables</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">vars</span><span class="o">.</span><span class="na">data</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="n">request</span><span class="p">:</span> <span class="kt">URLRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLRequest</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">url</span>    <span class="o">=</span> <span class="s2">&quot;http://localhost/data.php&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">data</span>   <span class="o">=</span> <span class="n">vars</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">method</span> <span class="o">=</span> <span class="n">URLRequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// add event listener and sent the encoded data</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="kd">var</span> <span class="n">loader</span><span class="p">:</span> <span class="kt">URLLoader</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">URLLoader</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">Event</span><span class="o">.</span><span class="na">COMPLETE</span><span class="o">,</span> <span class="n">completeHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">IOErrorEvent</span><span class="o">.</span><span class="na">IO_ERROR</span><span class="o">,</span> <span class="n">ioHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">addEventListener</span><span class="o">(</span><span class="n">SecurityErrorEvent</span><span class="o">.</span><span class="na">SECURITY_ERROR</span><span class="o">,</span> <span class="n">securityHandler</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">loader</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If all&rsquo;s gone well you should see the following output..</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="o">--</span><span class="n">sending</span><span class="o">:</span> <span class="o">{</span><span class="s2">&quot;age&quot;</span><span class="o">:</span><span class="mi">17</span><span class="o">}</span>
+</span><span class='line'><span class="o">::</span><span class="n">complete</span><span class="o">()</span>
+</span><span class='line'><span class="o">--</span><span class="n">received</span><span class="o">:</span> <span class="o">{</span><span class="s2">&quot;age&quot;</span><span class="o">:</span><span class="mi">18</span><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Et voila..</p>
+
+<p>Now you just need to decode the data in the <code>completeHandler</code> like so, and you&rsquo;ll have your object with the changed value.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'><span class="kd">function </span><span class="nf">completeHandler</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="kt">Event</span><span class="o">):</span><span class="kt">void</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;::complete()&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--received: &#39;</span><span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">person</span><span class="p">:</span> <span class="kt">Object</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="na">decode</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">target</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;--age is now: &#39;</span><span class="o">+</span> <span class="n">person</span><span class="o">.</span><span class="na">age</span><span class="o">);</span>  <span class="c1">// 18</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">catch</span> <span class="o">(</span><span class="n">e</span><span class="o">:</span><span class="n">Error</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;ERROR - could not decode data..&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and thats it..</p>
+
+<p>If you find this useful feel free to share or leave a comment if you like.
+Thanks for reading..</p>
+
+<p>~ David</p>
+
+<!--
+Download: [as3.json.encoding.zip](http://8ball-media.de/wp/wp-content/uploads/2010/05/as3.json_.encoding.zip)
+-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sending Mails Using Ant MailTask FDT/Eclipse]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/"/>
+    <updated>2010-11-28T22:06:26+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt</id>
+    <content type="html"><![CDATA[<p>I always wanted to make use of the &ldquo;Post compile ant file&rdquo; from Eclipse.
+After hours of searching, trial and (mostly) error i finally got it working.
+The Ant-MailTask sends a mail from within Eclipse including attachment.</p>
+
+<p>The downside is that i was unable to get this running with my default Ant installation (v.1.7.1)
+and had to install a newer version of Ant.</p>
+
+<p>I dont want to bore you with details of my odyssey but show you how it gets done in more or
+less four steps.</p>
+
+<!-- more -->
+
+
+<p>First check the version of your current Ant installation by typing
+<code>ant -version</code> in your Terminal which should give you something like:</p>
+
+<pre><code>Apache Ant version 1.8.1 compiled on April 30 2010
+</code></pre>
+
+<p>If you have the version 1.8.1 installed already you can obviously skip the first step
+as well as step three.</p>
+
+<p>Here we go:</p>
+
+<h4>Step 1.)<br/></h4>
+
+<p>Download <a href="http://archive.apache.org/dist/ant/">the latest Ant version</a> (1.8.1 at the time of writing)
+and put it wherever you like. As i&rsquo;m on OS X  i put it into <code>/usr/local/apache-ant-1.8.1/</code></p>
+
+<h4>Step 2.)<br/></h4>
+
+<p>Next step is to download and extract some additional JAR files.
+You&rsquo;ll need the <a href="http://java.sun.com/products/javamail/downloads/index.html"> JavaMail API</a> and
+the <a href="http://java.sun.com/products/javabeans/glasgow/jaf.html">NetBeans Activation Framework</a>.</p>
+
+<p>Extract and copy these files into either <code>~/.ant/lib/</code> or into the <code>lib</code> folder of your
+Ant installation directory. (To save you some time, i&rsquo;ve put these files into a zip at
+the end of the article. There may changes or updates over time but for now they should do the job)</p>
+
+<h4>Step 3.)<br/></h4>
+
+<p>The final step is to create or update the alias to the Ant binary.
+Open the Terminal again and use the following command.</p>
+
+<pre><code>sudo ln -s /usr/local/apache-ant-1.8.1/bin/ant /usr/bin/ant
+</code></pre>
+
+<p>(fit the paths to your needs if you&rsquo;ve choosen a different directory)</p>
+
+<p>If you got an error message, rename the current alias in <code>/usr/bin</code> to e.g. <code>ant-1.7.1</code></p>
+
+<p>Now the alias should point to your new Ant installation and <code>ant -version</code> should give you:
+<code>Apache Ant version 1.8.1 compiled on April 30 2010</code>.</p>
+
+<p>If you want to be the previous Ant version your default again, rename your <code>ant-1.7.1</code>
+to <code>ant</code> or create a new alias using the following command in the terminal.</p>
+
+<pre><code>sudo ln -s /usr/share/ant/bin/ant /usr/bin/ant
+</code></pre>
+
+<h4>Step 4.)<br/></h4>
+
+<p>The last step is to make the downloaded JAR available in the Eclipse environment.
+All you need to do is go to:</p>
+
+<pre><code>Preferences &gt; Ant &gt; Runtime &gt; Classpath &gt; Add External JARs
+</code></pre>
+
+<p>and select the downloaded JAR files.</p>
+
+<p>Thats pretty much all you have to do for preparation.<br/>
+Now let&rsquo;s see how an ant-target which makes usage of  the MailTask could look like.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;send.mail&quot;</span> <span class="na">description=</span><span class="s">&quot;sends a notication mail&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.host&quot;</span> <span class="na">value=</span><span class="s">&quot;mailserver.myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.port&quot;</span> <span class="na">value=</span><span class="s">&quot;25&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.user&quot;</span> <span class="na">value=</span><span class="s">&quot;me@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.pass&quot;</span> <span class="na">value=</span><span class="s">&quot;mysecretpassword&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.from&quot;</span> <span class="na">value=</span><span class="s">&quot;me@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;mail.to&quot;</span> <span class="na">value=</span><span class="s">&quot;you@myprovider.com&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;subject&quot;</span>
+</span><span class='line'>                <span class="na">value=</span><span class="s">&quot;Test Message sent via Ant MailTask&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;message&quot;</span>
+</span><span class='line'>                <span class="na">value=</span><span class="s">&quot;Hello World, i was sent by the Ant MailTask&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;mail</span> <span class="na">mailport=</span><span class="s">&quot;${mail.port}&quot;</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span>
+</span><span class='line'>            <span class="na">failonerror=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>            <span class="na">mailhost=</span><span class="s">&quot;${mail.host}&quot;</span>
+</span><span class='line'>            <span class="na">user=</span><span class="s">&quot;${mail.user}&quot;</span>
+</span><span class='line'>            <span class="na">password=</span><span class="s">&quot;${mail.pass}&quot;</span>
+</span><span class='line'>            <span class="na">subject=</span><span class="s">&quot;${subject}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;from</span> <span class="na">address=</span><span class="s">&quot;${mail.from}&quot;</span><span class="nt">&gt;&lt;/from&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;to</span> <span class="na">address=</span><span class="s">&quot;${mail.to}&quot;</span><span class="nt">&gt;&lt;/to&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;message&gt;</span>${message}<span class="nt">&lt;/message&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;${basedir}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;*.zip&quot;</span><span class="nt">&gt;&lt;/include&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/fileset&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/mail&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;tstamp&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;format</span> <span class="na">pattern=</span><span class="s">&quot;MM/dd/yyyy hh:mm aa&quot;</span>
+</span><span class='line'>                <span class="na">property=</span><span class="s">&quot;send.time&quot;</span>
+</span><span class='line'>                <span class="na">unit=</span><span class="s">&quot;hour&quot;</span><span class="nt">&gt;&lt;/format&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/tstamp&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;echo</span> <span class="na">message=</span><span class="s">&quot;Mail successfully sent at ${send.time}&quot;</span><span class="nt">&gt;&lt;/echo&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I think it is pretty self-explanatory. This would send an e-mail with
+the subject:<br/>
+&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#58;&#109;&#101;&#x40;&#109;&#121;&#x70;&#x72;&#111;&#118;&#105;&#x64;&#101;&#x72;&#x2e;&#99;&#111;&#109;">&#109;&#x65;&#64;&#109;&#121;&#112;&#x72;&#111;&#x76;&#x69;&#100;&#x65;&#114;&#46;&#99;&#x6f;&#x6d;</a>&rdquo; to &ldquo;<a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#121;&#x6f;&#117;&#x40;&#x6d;&#121;&#x70;&#x72;&#x6f;&#x76;&#105;&#x64;&#x65;&#x72;&#x2e;&#99;&#111;&#x6d;">&#x79;&#x6f;&#x75;&#x40;&#109;&#121;&#x70;&#x72;&#x6f;&#118;&#105;&#100;&#x65;&#114;&#x2e;&#x63;&#x6f;&#109;</a>&rdquo;
+with &ldquo;Hello World, i was sent by the Ant MailTask&rdquo; as message and all zip-files from
+the <code>basedir</code> as attachment.</p>
+
+<pre><code>From:    "me@myprovider.com"
+To:      "you@myprovider.com"
+Subject: "Test Message sent via Ant MailTask"
+Body:    "Hello World, i was sent by the Ant MailTask"
+</code></pre>
+
+<p>So far so good.</p>
+
+<p>Put this task into a <code>build.xml</code> (setup a <code>properties</code> file to make it more generic)
+and provide the appropriate credentials for your mail provider. Save it in your project
+directory or update your existing build file and run the following command in the terminal:</p>
+
+<pre><code>$ cd path/to/project
+$ ant send.mail
+</code></pre>
+
+<p>If everything worked as expected the output should look like this:</p>
+
+<pre><code>send.mail:
+     [mail] Sending email: Hello World, i was sent by the Ant MailTask
+     [mail] Sent email with 1 attachments
+     [echo] Mail successfully sent at 11/28/2010 04:17 PM
+
+BUILD SUCCESSFUL
+Total time: 1 second
+</code></pre>
+
+<p>Now insert the path to your <code>build.xml</code> in the <code>Ant Task</code> tab in your launch-configuration
+dialog and you&rsquo;re done. :)</p>
+
+<p>I use it now (in a more fine-grained setup) e.g. in the launch-configuration for my
+&lsquo;release-build&rsquo; to notify a customer about new versions, updates and so on.</p>
+
+<p>Hopefully you&rsquo;ve found some useful informations in this post. Thanks for reading and feel
+free to leave a comment or share it if you like.</p>
+
+<p>cheers,
+david</p>
+
+<!--Download: [Ant Mailtask JAR Files]()-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How To Protect Your Game From Being Rebranded (AS2)]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/"/>
+    <updated>2010-11-21T18:29:41+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2</id>
+    <content type="html"><![CDATA[<p>Eric Heimburg from <a href="http://flashgamelicense.com">FlashGameLicense.com</a> wrote an article about
+<a href="http://www.flashgamelicense.com/blog/2010/11/how-to-protect-your-game-from-being-rebranded/">How to protect your game from beeing rebranded</a> for Actionscript3.</p>
+
+<p>Because i&rsquo;m developing flash-based-games here and there i found this article quite interesting. After reading this post i digged in my old experiments from the good old Actionscript2 times to get familiar again with the syntax. It&rsquo;s been &lsquo;a couple of days&rsquo; since i wrote my last lines of code in AS2. But following the idea of Eric the code is pretty much the same exept a few loops more.</p>
+
+<!-- more -->
+
+
+<p><strong>Important Note:</strong> As stated in the article this makes only sense if you&rsquo;re obfuscating your code using one of the encryption tools out there !</p>
+
+<p>Back to topic, here is what it will look like in <em>Actionscript 2</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="kd">var</span> <span class="n">bmp</span><span class="p">:</span> <span class="kt">BitmapData</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">BitmapData</span><span class="o">(</span><span class="mi">300</span><span class="o">,</span> <span class="mi">225</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">y</span><span class="o">&lt;</span><span class="n">h</span><span class="o">;</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="n">result</span><span class="o">);</span> <span class="c1">// e.g. 556977304436</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For an image with e.g. 300x225 pixel it took about 90ms to summarize the &ldquo;checksum&rdquo;.
+Below a little overview of my results for some image sizes.</p>
+
+<ul>
+<li>640x480 &ndash; 379 ms</li>
+<li>800x600 &ndash; 547 ms</li>
+<li>1024x768 &ndash; 1436 ms</li>
+</ul>
+
+
+<p>Hm, approx 1.5 secs for an 1024x768 pixel sized image. This is a quite noticable duration.
+Especially when you are loading a lot of large scaled images or have a lot of them in your library this would affect the user experience in a negative way.</p>
+
+<p>To see if we can push this a bit further and how much this could be speed up i wrote some test-methods.
+My first idea was to take just a 1-pixel line in the horzontal and the vertical direction.</p>
+
+<p>Which would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Summarize the color-values of a 1-pixel line in horizontal</span>
+</span><span class='line'><span class="cm">     * and vertical direction to build a checksum-like value for</span>
+</span><span class='line'><span class="cm">     * the passed BitmapData object.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * @param   bmp The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @param   offset  The offset for x and y (optional); default (10)</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">horizontal_vertical</span> <span class="o">(</span><span class="n">bmp</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">,</span> <span class="n">offset</span><span class="o">:</span><span class="kt">Number</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="n">offset</span> <span class="o">==</span> <span class="kc">undefined</span><span class="o">)</span> <span class="o">?</span> <span class="mi">10</span> <span class="o">:</span> <span class="n">offset</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">offset</span><span class="o">;</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">offset</span><span class="o">;</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">h</span><span class="o">;</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">+=</span> <span class="n">bmp</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second way is to get the values from the diagonales in both directions. Which means from &ldquo;top-left&rdquo; to &ldquo;bottom-right&rdquo; and from &ldquo;top-right&rdquo; to &ldquo;bottom-left&rdquo;. Here is the method for it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Summarize the color-values of a 1-pixel line in both</span>
+</span><span class='line'><span class="cm">     * diagonal directions to build a checksum-like value for</span>
+</span><span class='line'><span class="cm">     * the passed BitmapData object.</span>
+</span><span class='line'><span class="cm">     *</span>
+</span><span class='line'><span class="cm">     * @param   o The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">diagonal</span> <span class="o">(</span><span class="n">o</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">result</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">x</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">y</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">w</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="na">width</span><span class="o">;</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="n">h</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="na">height</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">++,</span> <span class="n">y</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">o</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">for</span> <span class="o">(</span><span class="n">x</span><span class="o">=</span><span class="n">w</span><span class="o">;</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">;</span> <span class="n">x</span><span class="o">--,</span> <span class="n">y</span><span class="o">--)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">+=</span> <span class="n">o</span><span class="o">.</span><span class="na">getPixel</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And finally a method to combine the both values but this one is more for &ldquo;cosmetic&rdquo; purposes.. ;)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * combine the results of horizontal and diagonal checksum values</span>
+</span><span class='line'><span class="cm">     * @param   bmp The BitmapData object to build the checksum for</span>
+</span><span class='line'><span class="cm">     * @return    The checksum</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">function </span><span class="nf">combined</span> <span class="o">(</span><span class="n">bmp</span><span class="o">:</span><span class="kt">BitmapData</span><span class="o">):</span> <span class="kt">Number</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">horizontal_vertical</span><span class="o">(</span><span class="n">bmp</span><span class="o">)</span> <span class="o">+</span> <span class="n">diagonal</span><span class="o">(</span><span class="n">bmp</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now it&rsquo;s time to measure the execution times for the test-methods. Lets do this quick and simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='as3'><span class='line'>    <span class="kd">var</span> <span class="n">t1</span><span class="p">:</span> <span class="kt">Number</span>  <span class="o">=</span> <span class="nf">getTimer</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">chk</span><span class="p">:</span> <span class="kt">Number</span> <span class="o">=</span> <span class="n">combined</span> <span class="o">(</span><span class="n">bmp</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="n">t2</span><span class="p">:</span> <span class="kt">Number</span>  <span class="o">=</span> <span class="nf">getTimer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39;combined&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39; - executed in: &#39;</span><span class="o">+</span> <span class="o">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="o">)</span> <span class="o">+</span><span class="s1">&#39; ms&#39;</span><span class="o">);</span>
+</span><span class='line'>    <span class="nf">trace</span><span class="o">(</span><span class="s1">&#39; - version: &#39;</span> <span class="o">+</span> <span class="n">chk</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// combined</span>
+</span><span class='line'>    <span class="c1">// - executed in: 9 ms</span>
+</span><span class='line'>    <span class="c1">// - version: 11356386289</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>9ms! That&rsquo;s nice, right ? And you know what ? This is the execution time for a <em>1024x768</em> pixel image ! So as you can see, even with a large image its incredebly fast.
+To complete the overview, here my results for the other image sizes and the #combine-method.</p>
+
+<ul>
+<li>640x480 &ndash; 5 ms</li>
+<li>800x600 &ndash; 6 ms</li>
+<li>1024x768 &ndash; 9 ms</li>
+</ul>
+
+
+<p>They may vary on different hardware setups but i thinks it&rsquo;s performant enough to use it even on older machines.</p>
+
+<p>// results for an image with <em>1024x768</em> pixel</p>
+
+<ul>
+<li>complete
+
+<ul>
+<li>executed in: 1214 ms</li>
+<li>version: 4442572803510</li>
+</ul>
+</li>
+<li>horizontal/vertical
+
+<ul>
+<li>executed in: 3 ms</li>
+<li>version: 2505805708</li>
+</ul>
+</li>
+<li>diagonal
+
+<ul>
+<li>executed in: 5 ms</li>
+<li>version: 8850580581</li>
+</ul>
+</li>
+<li>combined
+
+<ul>
+<li>executed in: 9 ms</li>
+<li>version: 11356386289</li>
+</ul>
+</li>
+</ul>
+
+
+<p>The validation part is pretty much the same as in Actionscript3 so read the article mentioned above to see implementation details.</p>
+
+<p>After all i think this approach produces a reasonable checksum value and is fast enough and to use it your daily workflow as (game)-developer.<br/></p>
+
+<p>Thanks for reading. Feel free to share this or leave a comment.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Eclipse ADT Plugin Update]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/09/10/eclipse-adt-plugin-update/"/>
+    <updated>2010-09-10T12:23:30+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/09/10/eclipse-adt-plugin-update</id>
+    <content type="html"><![CDATA[<p>If you are programming for the <a href="http://developer.android.com/index.html">Android</a> plattform in <a href="http://www.eclipse.org/">Eclipse</a> and <a href="http://developer.android.com/sdk/index.html">ADT</a> you&rsquo;ve probably seen various <code>NullPointerExeptions</code> when editing the <code>AndroidManifest.xml</code> or any other xml file from the <code>res/</code> folder.
+To fix this go the &ldquo;Help/Check for Udates&rdquo; and install the latest version of the ADT-Plugin which was <code>0.9.8.v201008281755-53891</code> by the time of writing.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android 2.2 Froyo on HTC Touch Pro2 (Rhodium)]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium/"/>
+    <updated>2010-08-23T02:46:30+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium</id>
+    <content type="html"><![CDATA[<p><em>History:</em><br/>
+I took the current build of
+<a href="http://sites.google.com/site/androidport/downloads">Android v2.2 Froyo: BLAZN</a>
+and updated the <a href="http://xdandroid.southcape.org/initramfs/">initrd.gz</a> and the
+<a href="http://xdandroid.southcape.org/rootfs/">rootfs.img</a>. After changing the
+keyboard-layout to  <em>&ldquo;rhod100_de&rdquo;</em> by editing the <em>&ldquo;startup.txt&rdquo;</em> i was ready
+to go.</p>
+
+<p><em>Update: (2010/25/09)</em> <br/>
+Due the increased temperature i set the clock speed from <code>~710 MHz</code>
+back down to the default value of <code>528MHz</code>.<br/></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># startup.txt
+</span><span class='line'>acpuclock.oc_frq_khz=540672</span></code></pre></td></tr></table></div></figure>
+
+
+<p><del>Sadly none of the available startup-utilities worked for me.It seems there&rsquo;s
+something wrong with the
+<a href="http://forum.xda-developers.com/showthread.php?t=623792">Gen.Y Dualboot</a> since
+ the altering of the  appropriate REG-Key for the bootdirectory has no effect
+ for me.</del></p>
+
+<p><em>Update: (2010/02/09)</em> <br/>
+It works when the value of the registry key <code>AndroidBootFolder</code> is set only to
+<code>andboot</code> (Without quotation marks or slashes).</p>
+
+<pre><code>// string
+HKEY_CURRENT_USERSoftwareGen.YDualBOOTAndroidBootFolder: "andboot"
+
+// dword
+HKEY_CURRENT_USERSoftwareGen.YDualBOOTStorageBootMode: "1"
+</code></pre>
+
+<p>The <em>MJGDroidutil</em> seems only to work properly when the complete installation is
+made in the root of the SD-card. Until this is fixed youl&rsquo;ll have to manually
+start the <em>&ldquo;haret.exe&rdquo;</em>.</p>
+
+<p>conclusion:<br/>
+Beside this and the fact that sound is missing et all (neither input nor output)
+and the Bluetooth and camera did not work in the current build it is quite usable
+even if you did not overclocking your device. i&rsquo;m looking forward to updates and
+implementations of the missing hardware support.</p>
+
+<p><em>Update: (2010/02/09)</em> <br/>
+I&rsquo;m running Android a few days now and i&rsquo;m quite satisfied with. In the meantime
+there where some fixes so it&rsquo;s getting better and better.</p>
+
+<p>things i&rsquo;m still missing:</p>
+
+<ul>
+<li>Microphone Input</li>
+<li>Bluethooth</li>
+<li>Camera</li>
+<li>Fix for the too large buttons in some setting menus</li>
+<li>NAND installation</li>
+</ul>
+
+
+<p>Currently i have some problems to get the application <em>&ldquo;adb wireless&rdquo;</em> to work.
+if you have some experience or tips please leave a comment.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A New Desktop Design]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design/"/>
+    <updated>2010-08-04T00:08:11+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design</id>
+    <content type="html"><![CDATA[<p>v0.2 of my new desktop design made with <em>GeekTool</em></p>
+
+<p>During the rainy weekend i spent some time to fiddle around a bit with the
+<em>&ldquo;<a href="http://projects.tynsoe.org/en/geektool/">geektool</a>&rdquo;</em>.<br/>After researching a bit about <em>shell programming</em> and
+reviewing a lot of scripts and examples i wrote some for myself.</p>
+
+<p>With a good looking wallpaper and the script collection in place this is the
+result <em>(for now)</em>.</p>
+
+<p><img class="center" src="http://davidlinse.github.io/media/geektool-desktop-v0.2.png">
+<em><em>Note:</em></em> <a href="http://stratification.deviantart.com/gallery/?8458648#/d18jam5">credits</a> for the wallpaper found on <a href="http://stratification.deviantart.com/gallery/?8458648#/d18jam5">deviantart.com</a></p>
+
+<p><a name="top"></a></p>
+
+<p><a href="#Weather">Weather</a>, <a href="#CPU_Usage">CPU</a>, <a href="NetworkIO">Network I/O</a>,
+<a href="#RAM_Usage">RAM Usage</a>, <a href="#HDD_Usage">HDD Usage</a>, <a href="#Processes">Processes</a>,
+<a href="#MemorysHogs">Memory Hogs</a>, <a href="#Calendar">Calendar</a>,
+<a href="#Google">Google Mail</a> <small><em>(unread)</em></small></p>
+
+<!-- more -->
+
+
+<ul>
+<li><a href="#Weather">Weather</a></li>
+<li><a href="#CPU_Usage">CPU</a></li>
+<li><a href="NetworkIO">Network I/O</a></li>
+<li><a href="#RAM_Usage">RAM Usage</a></li>
+<li><a href="#HDD_Usage">HDD Usage</a></li>
+<li><a href="#Processes">Processes</a></li>
+<li><a href="#MemorysHogs">Memory Hogs</a></li>
+<li><a href="#Calendar">Calendar</a></li>
+<li><a href="#Google">Google Mail</a> <small><em>(unread)</em></small></li>
+</ul>
+
+
+<br/>
+
+
+<p><a name="Weather"></a></p>
+
+<h4>Weather</h4>
+
+<p>displays the current wheather, the forecast for tomorrow and the day after
+and an image of the current condition.</p>
+
+<pre><code>#!/bin/sh
+
+# displays the current wheather condition and saves an appropriate image
+# as well as the forecast for tomorrow and the day after
+
+TMP_DIR=/tmp/;    # the tmp working-directory
+
+TMP_FILE=weather.xml;   # the name of the .tmp file
+
+file=$TMP_DIR/$TMP_FILE;  # the tmp file
+
+REGION_URI=germany/berlin/berlin-20065565/;  # the url for berlin, germany
+
+CITY_CODE=GMXX0007;     # the region code for berlin, germany
+
+#
+# get the image for the current conditions
+#
+curl -s -o $TMP_DIR/weather.html 'http://weather.yahoo.com/'$REGION_URI;
+
+curl -s -o $TMP_DIR/weather.png |
+  `grep "div class="forecast-icon" style="background:url" |
+   $TMP_DIR/weather.html |
+   awk -F"'" '{ printf $2 }'`
+
+#
+# get the forecast
+#
+curl -s -o $file 'http://xml.weather.yahoo.com/forecastrss?p='$CITY_CODE'&amp;u;=c'
+
+#
+# tomorrow
+#
+more $file | grep -E -m 1 '(High:)'|
+  sed -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/&lt;b&gt;//' -e 's/&lt; /b&gt;//'
+      -e 's/&lt;br&gt;&lt;/br&gt;//' -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/High://g' -e 's/Low:/-/g'
+
+#
+# the day after tomorrow
+#
+more $file | grep -E -m 2 '(High:)' |
+  sed -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/&lt;/b&gt;&lt;b&gt;//' -e 's/&lt; /b&gt;//'
+      -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/High://g' -e 's/Low:/-/g' |
+  tail -r -n 1
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="CPU_Usage"></a></p>
+
+<h4>CPU Usage</h4>
+
+<blockquote><p>  # displays the cpu usage for user/system/idle</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the cpu usage for user/system/idle
+
+TMP_DIR=/tmp
+
+ps -arcwwxo "command %cpu ruser" |
+  head -11 |
+  sed '/top/d' &gt; $TMP_DIR/cpu.temp
+
+cat $TMP_DIR/cpu.temp |
+  head -11 |
+  sed -e "s/COMMAND/Processes/g" -e 's/ %CPU RUSER//'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="NetworkIO"></a></p>
+
+<h4>Network I/O</h4>
+
+<blockquote><p>  # displays the current I/O of a network adapter</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the current I/O of a specified network adapter
+# created by chris helming.
+# chris dot helming at gmail
+
+# get the current number of bytes in and bytes out
+myvar1=`netstat -ib | grep -e "en0" -m 1 | awk '{print $7}'` #  bytes in
+myvar3=`netstat -ib | grep -e "en0" -m 1 | awk '{print $10}'` # bytes out
+
+# wait one second
+sleep 1
+
+# get the number of bytes in and out one second later
+myvar2=`netstat -ib | grep -e "en0" -m 1 | awk '{print $7}'` # bytes in again
+myvar4=`netstat -ib | grep -e "en0" -m 1 | awk '{print $10}'` # bytes out again
+
+# find the difference between bytes in and out during that one second
+subin=$(($myvar2 - $myvar1))
+subout=$(($myvar4 - $myvar3))
+
+# convert bytes to kilobytes
+kbin=`echo "scale=2; $subin/1024;" | bc`
+kbout=`echo "scale=2; $subout/1024;" | bc`
+
+# print the results
+echo "Network I/O"
+echo "D: $kbin Kb/sec"
+echo "U: $kbout Kb/sec"
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="RAM_Usage"></a></p>
+
+<h4>RAM Usage</h4>
+
+<blockquote><p>  # displays the current RAM usage</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the current RAM usage
+
+top -FR -l 1 | awk '/PhysMem/ {print "Used: " $8 " Free: " $10}'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="HDD_Usage"></a></p>
+
+<h4>HDD Usage</h4>
+
+<blockquote><p>  # displays the space of specified hdd&rsquo;s</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the space of specified hdd's (internal, external Time-Machine Backup)
+
+df -h | grep disk0s2 | awk '{print "HDD #1: " $4 " (" $5 " used)"}' # internal
+df -h | grep "Time"  | awk '{print "HDD #2: " $4 " (" $5 " used)"}' # external
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Processes"></a></p>
+
+<h4>Processes</h4>
+
+<blockquote><p>  # displays the 10 most cpu greedy processes</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the 10 most cpu greedy processes
+
+TMP_DIR=/tmp
+
+ps -arcwwxo "command %cpu ruser" | head -11 | sed '/top/d' &gt; $TMP_DIR/cpu.temp
+more $GT_DIR/cpu.temp |
+  head -11 | \
+  sed -e "s/COMMAND/Processes/g" \
+      -e 's/ %CPU RUSER//'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="MemoryHogs"></a></p>
+
+<h4>Memory Hogs</h4>
+
+<blockquote><p>  # displays the 10 most memory greedy processes</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the 10 most memory greedy processes
+
+top -orsize -FR -l1 | \
+  grep % | \
+  grep -v  \Load | \
+  grep -v  \COMMAND | \
+  cut -c 7-19,64-69 | \
+  head -10
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Calendar"></a></p>
+
+<h4>Calendar</h4>
+
+<blockquote><p>  # displays the calendar of the current month</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the calendar of the current month
+
+cal
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Google"></a></p>
+
+<h4>Google Mail <sup>(<em>unread messages</em>)</sup></h4>
+
+<blockquote><p>  # displays the unread emails from #inbox</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# Thanks to Dave Taylor at www.askdavetaylor.com for
+# the great tutorial on accessing and parsing RSS feeds with a shell script
+
+# displays the unread emails from #inbox
+
+username='' # username is your email address with @ replaced by %40.
+password='' # your password
+
+url="https://$username:$password@mail.google.com/mail/feed/atom/inbox"
+
+if [ $# -eq 1 ] ; then
+  headarg=$(( $1 * 2 ))
+else
+  headarg="-8"  # default is four email messages
+fi
+
+curl -s $url | grep -E '(title&gt;|summary&gt;)' | \
+  sed -n '2,$p' | \
+  sed -e 's/&lt;title&gt;//'  -e 's/&lt; /title&gt;//' \
+      -e 's/&lt;summary&gt;/   /' -e 's/&lt; /summary&gt;//' | \
+  head $headarg | \
+  fmt -w $width
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p>this is it for now.. #ilovemygeektoolstyleddesktop ;)</p>
+
+<p>~david</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Comparing Objects using JSON in AS3]]></title>
+    <link href="http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3/"/>
+    <updated>2009-08-21T18:58:09+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3</id>
+    <content type="html"><![CDATA[<p>I recently stumbled over a post on <a href="http://blog.joshbuhler.com/">josh buhler&rsquo;s blog</a> regarding the comparison of two objects in AS3 using the <code>ByteArray</code>-class.
+You can read the post <a href="http://blog.joshbuhler.com/2008/02/11/comparing-objects-using-bytearrays/#more-325">here</a>.</p>
+
+<p>This brought me to an idea..
+Instead of comparing each byte in a loop why not using a serialized string and a strict comparison ?</p>
+
+<!-- more -->
+
+
+<p>so here we go..</p>
+
+<pre><code>package {
+
+    import com.adobe.serialization.json.JSON;
+    import com.adobe.serialization.json.JSONParseError;
+
+    /**
+     * class containing useful helper methods
+     * @author  david linse (davidlinse@8ball-media.com)
+     * @date  2009/21/08
+     */
+    public class ObjectUtil {
+
+    /**
+     * compares given objects and returns boolean
+     * result of compare action
+     *
+     * @param obj1  object
+     * @param obj2  object
+     * @return  result  boolean true when identical; false otherwise
+     */
+    static public function compare (obj1:Object, obj2:Object): Boolean {
+
+        try {
+            var value1: String = JSON.encode(obj1);
+            var value2: String = JSON.encode(obj2);
+        }
+        catch (e:JSONParseError) {
+            trace('[ERROR] ObjectUtil.compare() - '+ e.text);
+            return false;
+        }
+
+        return (value1 === value2);
+    }
+}
+</code></pre>
+
+<p>This was the class, let&rsquo;s go to a little usage sample..</p>
+
+<pre><code>  //-- an object and a reference to it
+  var foo: Object = {label:"hi, i'am foo.."};
+  var bar: Object = foo;
+
+  ObjectUtil.compare(foo, bar);   //-- result: true
+
+  //-- two identical objects
+  var foo1: Object = {label:"hi, i'am foo.."};
+  var bar1: Object = {label:"hi, i'am foo.."};
+
+  ObjectUtil.compare(foo1, bar1);   //-- result: true
+
+  //-- two different objects
+  var foo2: Object = {label:"hi, i'am foo.."};
+  var bar2: Object = {label:"howdy, i'am bar.."};
+
+  ObjectUtil.compare(foo2, bar2);   //-- result: false
+
+  //-- or more complex objects
+  var rect1:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect2:Rectangle = new Rectangle (0, 0, 100, 100);
+
+  ObjectUtil.compare(rect1, rect2);   //-- result: true
+
+  //-- or more complex objects
+  var rect3:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect4:Rectangle = new Rectangle (0, 0, 100, 200);
+
+  ObjectUtil.compare(rect3, rect4);   //-- result: false
+</code></pre>
+
+<p>works as expected..
+what did you think ? feel free to use and reply as well.</p>
 ]]></content>
   </entry>
   

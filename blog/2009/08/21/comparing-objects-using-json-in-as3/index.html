@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Status - 8ball-media</title>
+  <title>Comparing Objects using JSON in AS3 - 8ball-media</title>
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="It&rsquo;s literally has been a while since my last post. Meanwhile I was allowed to play around with: CJS and AMD modules
-Backbone, Twitter &hellip;">
+  <meta name="description" content="I recently stumbled over a post on josh buhler&rsquo;s blog regarding the comparison of two objects in AS3 using the ByteArray-class.
+You can read &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@ Backbone, Twitter &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://davidlinse.github.io/blog/2013/10/03/status">
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
@@ -81,7 +81,7 @@ Backbone, Twitter &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Status</h1>
+      <h1 class="entry-title">Comparing Objects using JSON in AS3</h1>
     
     
       <p class="meta">
@@ -97,32 +97,95 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2009-08-21T18:58:09+02:00" pubdate data-updated="true">Aug 21<span>st</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&rsquo;s literally has been a while since my last post.</p>
+<div class="entry-content"><p>I recently stumbled over a post on <a href="http://blog.joshbuhler.com/">josh buhler&rsquo;s blog</a> regarding the comparison of two objects in AS3 using the <code>ByteArray</code>-class.
+You can read the post <a href="http://blog.joshbuhler.com/2008/02/11/comparing-objects-using-bytearrays/#more-325">here</a>.</p>
 
-<p>Meanwhile I was allowed to play around with:</p>
+<p>This brought me to an idea..
+Instead of comparing each byte in a loop why not using a serialized string and a strict comparison ?</p>
 
-<ul>
-<li>CJS and AMD modules</li>
-<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
-<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
-<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
-<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
-<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
-</ul>
+<!-- more -->
 
 
-<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma&#8217;, i&rsquo;m a JavaScript dude now)</em>.</p>
+<p>so here we go..</p>
 
-<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
+<pre><code>package {
 
-<p>~david</p>
+    import com.adobe.serialization.json.JSON;
+    import com.adobe.serialization.json.JSONParseError;
+
+    /**
+     * class containing useful helper methods
+     * @author  david linse (davidlinse@8ball-media.com)
+     * @date  2009/21/08
+     */
+    public class ObjectUtil {
+
+    /**
+     * compares given objects and returns boolean
+     * result of compare action
+     *
+     * @param obj1  object
+     * @param obj2  object
+     * @return  result  boolean true when identical; false otherwise
+     */
+    static public function compare (obj1:Object, obj2:Object): Boolean {
+
+        try {
+            var value1: String = JSON.encode(obj1);
+            var value2: String = JSON.encode(obj2);
+        }
+        catch (e:JSONParseError) {
+            trace('[ERROR] ObjectUtil.compare() - '+ e.text);
+            return false;
+        }
+
+        return (value1 === value2);
+    }
+}
+</code></pre>
+
+<p>This was the class, let&rsquo;s go to a little usage sample..</p>
+
+<pre><code>  //-- an object and a reference to it
+  var foo: Object = {label:"hi, i'am foo.."};
+  var bar: Object = foo;
+
+  ObjectUtil.compare(foo, bar);   //-- result: true
+
+  //-- two identical objects
+  var foo1: Object = {label:"hi, i'am foo.."};
+  var bar1: Object = {label:"hi, i'am foo.."};
+
+  ObjectUtil.compare(foo1, bar1);   //-- result: true
+
+  //-- two different objects
+  var foo2: Object = {label:"hi, i'am foo.."};
+  var bar2: Object = {label:"howdy, i'am bar.."};
+
+  ObjectUtil.compare(foo2, bar2);   //-- result: false
+
+  //-- or more complex objects
+  var rect1:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect2:Rectangle = new Rectangle (0, 0, 100, 100);
+
+  ObjectUtil.compare(rect1, rect2);   //-- result: true
+
+  //-- or more complex objects
+  var rect3:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect4:Rectangle = new Rectangle (0, 0, 100, 200);
+
+  ObjectUtil.compare(rect3, rect4);   //-- result: false
+</code></pre>
+
+<p>works as expected..
+what did you think ? feel free to use and reply as well.</p>
 </div>
 
 
@@ -145,12 +208,12 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2009-08-21T18:58:09+02:00" pubdate data-updated="true">Aug 21<span>st</span>, 2009</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/stuff/'>stuff</a>
+    <a class='category' href='/blog/categories/as3/'>AS3</a>, <a class='category' href='/blog/categories/experiments/'>experiments</a>
   
 </span>
 
@@ -159,7 +222,7 @@ Backbone, Twitter &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2013/10/03/status/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2013/10/03/status/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3/" >Tweet</a>
   
   
   
@@ -168,10 +231,8 @@ Backbone, Twitter &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Previous Post: RCov::VerifyTask "threshold" auto-update monitor">&laquo; RCov::VerifyTask "threshold" auto-update monitor</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/01/31/picks-of-the-month/" title="Next Post: picks of the month #1">picks of the month #1 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2010/08/04/a-new-desktop-design/" title="Next Post: A New Desktop Design">A New Desktop Design &raquo;</a>
       
     </p>
   </footer>

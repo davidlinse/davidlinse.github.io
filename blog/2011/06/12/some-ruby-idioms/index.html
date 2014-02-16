@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Status - 8ball-media</title>
+  <title>Some Ruby Idioms - 8ball-media</title>
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="It&rsquo;s literally has been a while since my last post. Meanwhile I was allowed to play around with: CJS and AMD modules
-Backbone, Twitter &hellip;">
+  <meta name="description" content="A post as a note to myself to remember some Ruby Idioms .. # $ruby 1.9.2 # # Add a value to an array unless its not # contained already and even it's &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@ Backbone, Twitter &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://davidlinse.github.io/blog/2013/10/03/status">
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
@@ -81,7 +80,7 @@ Backbone, Twitter &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Status</h1>
+      <h1 class="entry-title">Some Ruby Idioms</h1>
     
     
       <p class="meta">
@@ -97,32 +96,37 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-06-12T23:00:25+02:00" pubdate data-updated="true">Jun 12<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&rsquo;s literally has been a while since my last post.</p>
+<div class="entry-content"><p>A post as a note to myself to remember some Ruby Idioms ..</p>
 
-<p>Meanwhile I was allowed to play around with:</p>
+<pre><code> # $ruby 1.9.2
+ #
+ # Add a value to an array unless its not
+ # contained already and even it's contained
+ # multiple times reduce it to a single occurence.
 
-<ul>
-<li>CJS and AMD modules</li>
-<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
-<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
-<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
-<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
-<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
-</ul>
+ foo  = ['bar', 'baz', 'baz']    # =&gt;  ["bar", "baz", "baz"]
+ foo |= ['baz']                  # =&gt;  ["bar", "baz"]
 
+ # Parallel assignment by "un-splatting" an result array
+ # Instead of:
+ match = "Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
+ catch = match[1]
 
-<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma&#8217;, i&rsquo;m a JavaScript dude now)</em>.</p>
+ # Use:
+ catch, match = *"Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
 
-<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
+ # catch =&gt; "Ruby 1.9.2 is awesome"
+ # match =&gt; "1.9.2"
+</code></pre>
 
-<p>~david</p>
+<p>more to come..</p>
 </div>
 
 
@@ -145,12 +149,12 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-06-12T23:00:25+02:00" pubdate data-updated="true">Jun 12<span>th</span>, 2011</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/stuff/'>stuff</a>
+    <a class='category' href='/blog/categories/ruby/'>ruby</a>
   
 </span>
 
@@ -159,7 +163,7 @@ Backbone, Twitter &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2013/10/03/status/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2013/10/03/status/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms/" >Tweet</a>
   
   
   
@@ -168,10 +172,10 @@ Backbone, Twitter &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Previous Post: RCov::VerifyTask "threshold" auto-update monitor">&laquo; RCov::VerifyTask "threshold" auto-update monitor</a>
+        <a class="basic-alignment left" href="/blog/2011/05/07/keep-your-bash_history-entries-unique/" title="Previous Post: Keep your ~/.bash_history entries unique">&laquo; Keep your ~/.bash_history entries unique</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/01/31/picks-of-the-month/" title="Next Post: picks of the month #1">picks of the month #1 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/" title="Next Post: Tweaking Flash (CS5) - Duplicate Symbol Dialog">Tweaking Flash (CS5) - Duplicate Symbol Dialog &raquo;</a>
       
     </p>
   </footer>

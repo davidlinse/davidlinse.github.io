@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Keep your ~/.bash_history entries unique - 8ball-media</title>
+  <meta name="author" content="David Linse">
+
+  
+  <meta name="description" content="When often using the terminal you don&rsquo;t want to type certain commands over and over again. Although recent commands are stored in the . &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4078850-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">8ball-media</a></h1>
+  
+    <h2>little pieces from everything</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:davidlinse.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Keep your ~/.bash_history entries unique</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-07T11:00:58+02:00" pubdate data-updated="true">May 7<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>When often using the terminal you don&rsquo;t want to type certain commands over and over again. Although recent commands are stored in the <code>.bash_history</code> in your home-directory they will be overwritten at some point when a new terminal is opened. So you won&rsquo;t be able to use <code>Ctrl + R</code> to search for commands you&rsquo;ve typed longer time ago.
+Luckily there is an option to append the terminal commands instead of overwriting them.</p>
+
+<!-- more -->
+
+
+<pre><code>$ shopt -s histappend
+</code></pre>
+
+<p>Add this command to your <code>~/.bash_profile</code> and you&rsquo;ll never lose a command anymore.
+As a side effect the <code>.bash_history</code> file will grow over time as well as be poluted with a lot of redundant commands.
+So i wrote a little ruby script to keep the <code>~/.bash_profile</code> commands unique.</p>
+
+<p>Here we go..</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> #!/usr/bin/env ruby
+</span><span class='line'> # Ruby 1.9.2
+</span><span class='line'> # encoding: utf-8
+</span><span class='line'>
+</span><span class='line'> # This little script keeps the entries in the ~/.bash_history file unique
+</span><span class='line'> # Might be useful when working with: $ shopt -s histappend
+</span><span class='line'> #
+</span><span class='line'> # author   david linse (david@8ball-media.de)
+</span><span class='line'> # version  0.0.1
+</span><span class='line'>
+</span><span class='line'> history_path = "/Users/#{ENV['USER']}"
+</span><span class='line'> history_file = ".bash_history"
+</span><span class='line'>
+</span><span class='line'> history = File.join history_path, history_file
+</span><span class='line'>
+</span><span class='line'> entries = Array.new
+</span><span class='line'> uniques = Array.new
+</span><span class='line'>
+</span><span class='line'> begin
+</span><span class='line'>   file = File.open(history).each do |line|
+</span><span class='line'>     entries.push line
+</span><span class='line'>   end
+</span><span class='line'> rescue
+</span><span class='line'>   abort "nError! could not find: #{history} ..n "
+</span><span class='line'> end
+</span><span class='line'>
+</span><span class='line'> uniques = entries.uniq
+</span><span class='line'> removed = (entries.size - uniques.size).to_s
+</span><span class='line'>
+</span><span class='line'> output = File.new(history, "w+")
+</span><span class='line'> output.write(uniques)
+</span><span class='line'> output.close
+</span><span class='line'>
+</span><span class='line'> file.close
+</span><span class='line'>
+</span><span class='line'> msg = ''
+</span><span class='line'> msg &lt;&lt; "nBash History Uniquifiern
+</span><span class='line'> Removed #{removed} entries from #{entries.size},
+</span><span class='line'> now #{uniques.size} in #{history}n "
+</span><span class='line'>
+</span><span class='line'> puts msg</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can use and/or modify it to your own needs.
+Maybe there is someone of you who&rsquo;s running Ruby on an Windowz
+machine and could implement an appropriate modification and post it back?</p>
+
+<p>That&rsquo;s it, more simple ruby stuff to come..<br/>
+Thanks for reading and feel free to leave a comment.</p>
+
+<p>~ David</p>
+
+<p><em>Update:</em> I added some error handling for the case the history does not exist.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">David Linse</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-05-07T11:00:58+02:00" pubdate data-updated="true">May 7<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>, <a class='category' href='/blog/categories/stuff/'>stuff</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/" title="Previous Post: How to send or receive JSON encoded data from flash to a server-side-script">&laquo; How to send or receive JSON encoded data from flash to a server-side-script</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/06/12/some-ruby-idioms/" title="Next Post: Some Ruby Idioms">Some Ruby Idioms &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/">How to port WordPress blog entries to OctoPress .markdown files</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/03/status/">Status</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/">RCov::VerifyTask "threshold" auto-update monitor</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/davidlinse">@davidlinse</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'davidlinse',
+            count: 2,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.ready(function(){
+      getTwitterFeed("davidlinse", 5, true);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/davidlinse" class="twitter-follow-button" data-show-count="">Follow @davidlinse</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - David Linse -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

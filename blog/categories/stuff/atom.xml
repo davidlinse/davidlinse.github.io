@@ -4,7 +4,7 @@
   <title><![CDATA[Category: stuff | 8ball-media]]></title>
   <link href="http://davidlinse.github.io/blog/categories/stuff/atom.xml" rel="self"/>
   <link href="http://davidlinse.github.io/"/>
-  <updated>2014-02-16T15:11:24+01:00</updated>
+  <updated>2014-02-16T16:28:49+01:00</updated>
   <id>http://davidlinse.github.io/</id>
   <author>
     <name><![CDATA[David Linse]]></name>
@@ -199,6 +199,76 @@ you&rsquo;re done!</p>
 <p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
 
 <p>~david</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tweaking Flash (CS5) - Duplicate Symbol Dialog]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/"/>
+    <updated>2011-08-09T21:39:39+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog</id>
+    <content type="html"><![CDATA[<p>If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of <em>Adobe Flash CS5</em> maybe here&rsquo;s a solution.</p>
+
+<!-- more -->
+
+
+<h5>The situation<br/></h5>
+
+<p>By default the name for a new duplicated symbol is something like this:</p>
+
+<ul>
+<li><code>Kopie von NAME_OF_SYMBOL</code> .. (german)</li>
+<li><code>Copy of NAME_OF_SYMBOL</code> .. (english)</li>
+</ul>
+
+
+<p>How ugly is that ? Instead of just hitting the backspace to remove the &ldquo;copy-part&rdquo;
+you have to use the mouse and/or several key strokes to get rid of it.<br/>
+I want it more like this:</p>
+
+<ul>
+<li> <code>NAME_OF_SYMBOL Kopie</code></li>
+<li> <code>NAME_OF_SYMBOL copy</code></li>
+</ul>
+
+
+<p>So here is how to do it ..</p>
+
+<h5>The solution<br/></h5>
+
+<p>Close your Flash if it&rsquo;s running and go for a hunt for a file named <em>&ldquo;fl_dictionary.dat&rdquo;</em>
+and open it in your favourite editor. It&rsquo;s a alway a good idea to make a backup before
+making any changes. ;)</p>
+
+<p>Assuming you&rsquo;ve got installed <a href="http://macromates.com" title="Textmate">Textmate</a> and you&rsquo;re on:</p>
+
+<ul>
+<li><p> OSX, in a terminal it is:</p>
+
+<p>   <code>find /Applications -iname "fl_dictionary.dat" -print0 | xargs -0 mate</code></p></li>
+<li><p> M$, in the shell it is:</p>
+
+<p>   <code>.. uhm, could you provide something .. ?</code> (leave a comment and i&rsquo;ll add it &hellip;)</p></li>
+</ul>
+
+
+<p>Now search for <code>"Kopie von %s"</code> or  <code>"Copy of %s"</code> (without the quotes)
+and change it to what ever you want to see when duplicating a symbol.
+The <code>%s</code> is the placeholder for the symbol you&rsquo;re going to duplicate later.
+I changed my to &ldquo;<code>%s copy</code>&rdquo; which gives me the above mentioned format of <code>NAME_OF_SYMBOL copy</code>.<br/>
+Save the file restart Flash and (hopefully) you&rsquo;ll see your made changes.</p>
+
+<p>That&rsquo;s it ..<br/>
+Feel free to spread and or leave a comment below..</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+
+
 ]]></content>
   </entry>
   

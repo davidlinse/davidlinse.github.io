@@ -5,12 +5,16 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Status - 8ball-media</title>
+  <title>Android 2.2 Froyo on HTC Touch Pro2 (Rhodium) - 8ball-media</title>
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="It&rsquo;s literally has been a while since my last post. Meanwhile I was allowed to play around with: CJS and AMD modules
-Backbone, Twitter &hellip;">
+  <meta name="description" content="History:
+I took the current build of
+Android v2.2 Froyo: BLAZN
+and updated the initrd.gz and the
+rootfs.img. After changing the
+keyboard-layout to & &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +23,7 @@ Backbone, Twitter &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://davidlinse.github.io/blog/2013/10/03/status">
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
@@ -81,7 +85,7 @@ Backbone, Twitter &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Status</h1>
+      <h1 class="entry-title">Android 2.2 Froyo on HTC Touch Pro2 (Rhodium)</h1>
     
     
       <p class="meta">
@@ -97,32 +101,75 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2010-08-23T02:46:30+02:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&rsquo;s literally has been a while since my last post.</p>
+<div class="entry-content"><p><em>History:</em><br/>
+I took the current build of
+<a href="http://sites.google.com/site/androidport/downloads">Android v2.2 Froyo: BLAZN</a>
+and updated the <a href="http://xdandroid.southcape.org/initramfs/">initrd.gz</a> and the
+<a href="http://xdandroid.southcape.org/rootfs/">rootfs.img</a>. After changing the
+keyboard-layout to  <em>&ldquo;rhod100_de&rdquo;</em> by editing the <em>&ldquo;startup.txt&rdquo;</em> i was ready
+to go.</p>
 
-<p>Meanwhile I was allowed to play around with:</p>
+<p><em>Update: (2010/25/09)</em> <br/>
+Due the increased temperature i set the clock speed from <code>~710 MHz</code>
+back down to the default value of <code>528MHz</code>.<br/></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># startup.txt
+</span><span class='line'>acpuclock.oc_frq_khz=540672</span></code></pre></td></tr></table></div></figure>
+
+
+<p><del>Sadly none of the available startup-utilities worked for me.It seems there&rsquo;s
+something wrong with the
+<a href="http://forum.xda-developers.com/showthread.php?t=623792">Gen.Y Dualboot</a> since
+ the altering of the  appropriate REG-Key for the bootdirectory has no effect
+ for me.</del></p>
+
+<p><em>Update: (2010/02/09)</em> <br/>
+It works when the value of the registry key <code>AndroidBootFolder</code> is set only to
+<code>andboot</code> (Without quotation marks or slashes).</p>
+
+<pre><code>// string
+HKEY_CURRENT_USERSoftwareGen.YDualBOOTAndroidBootFolder: "andboot"
+
+// dword
+HKEY_CURRENT_USERSoftwareGen.YDualBOOTStorageBootMode: "1"
+</code></pre>
+
+<p>The <em>MJGDroidutil</em> seems only to work properly when the complete installation is
+made in the root of the SD-card. Until this is fixed youl&rsquo;ll have to manually
+start the <em>&ldquo;haret.exe&rdquo;</em>.</p>
+
+<p>conclusion:<br/>
+Beside this and the fact that sound is missing et all (neither input nor output)
+and the Bluetooth and camera did not work in the current build it is quite usable
+even if you did not overclocking your device. i&rsquo;m looking forward to updates and
+implementations of the missing hardware support.</p>
+
+<p><em>Update: (2010/02/09)</em> <br/>
+I&rsquo;m running Android a few days now and i&rsquo;m quite satisfied with. In the meantime
+there where some fixes so it&rsquo;s getting better and better.</p>
+
+<p>things i&rsquo;m still missing:</p>
 
 <ul>
-<li>CJS and AMD modules</li>
-<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
-<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
-<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
-<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
-<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
+<li>Microphone Input</li>
+<li>Bluethooth</li>
+<li>Camera</li>
+<li>Fix for the too large buttons in some setting menus</li>
+<li>NAND installation</li>
 </ul>
 
 
-<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma&#8217;, i&rsquo;m a JavaScript dude now)</em>.</p>
-
-<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
-
-<p>~david</p>
+<p>Currently i have some problems to get the application <em>&ldquo;adb wireless&rdquo;</em> to work.
+if you have some experience or tips please leave a comment.</p>
 </div>
 
 
@@ -145,12 +192,12 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2010-08-23T02:46:30+02:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2010</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/stuff/'>stuff</a>
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>
   
 </span>
 
@@ -159,7 +206,7 @@ Backbone, Twitter &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2013/10/03/status/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2013/10/03/status/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium/" >Tweet</a>
   
   
   
@@ -168,10 +215,10 @@ Backbone, Twitter &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Previous Post: RCov::VerifyTask "threshold" auto-update monitor">&laquo; RCov::VerifyTask "threshold" auto-update monitor</a>
+        <a class="basic-alignment left" href="/blog/2010/08/04/a-new-desktop-design/" title="Previous Post: A New Desktop Design">&laquo; A New Desktop Design</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/01/31/picks-of-the-month/" title="Next Post: picks of the month #1">picks of the month #1 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2010/09/10/eclipse-adt-plugin-update/" title="Next Post: Eclipse ADT Plugin Update">Eclipse ADT Plugin Update &raquo;</a>
       
     </p>
   </footer>

@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: experiments | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/experiments/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-02-16T16:28:49+01:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RCov::VerifyTask "threshold" auto-update monitor]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/"/>
+    <updated>2011-10-03T03:46:22+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor</id>
+    <content type="html"><![CDATA[<p>When developing TDD or BDD in <code>Ruby (1.9.2)</code> using the <code>RCov::VerifyTask</code>
+you need to fullfill a certain <code>threshold</code> to make a build successful.</p>
+
+<p>It can be quite annoying to update the (hopefully) increased <code>threshold</code> of the
+<code>RCov::VerifyTask</code> in your <code>Rakefile</code> after each successful build.
+So I did some experiments and the following script is the result.</p>
+
+<!-- more -->
+
+
+<p>A common <a href="http://rspec.rubyforge.org/rspec/1.2.6/classes/RCov/VerifyTask.html"><code>RCov::VerifyTask</code></a> setup might look like:</p>
+
+<pre><code> Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+   t.threshold   = 10.00                     # to get started
+   t.index_html  = 'coverage/index.html'     # the path to html report
+ end
+</code></pre>
+
+<p>It uses another <code>:task</code> to capture the output of the actual <code>RCov::VerifyTask</code>
+and writes the <code>threshold</code> into a <code>coverage.yml</code> file. This <code>threshold</code> value
+is taken into comparison at the next build and updated at next build if
+its <code>value</code> has increased.</p>
+
+<p>First the method to read and write the <code>threshold</code> value from/to
+a <code>./coverage.yml</code>.</p>
+
+<pre><code> # the `log' file in `yaml' format
+ #
+ COVERAGE_YML   = 'coverage.yml'
+
+ # read the last 'threshold' from the .yml file
+ # and return `10.0' as value if the file isn't existant
+ #
+ def read_yaml_threshold
+
+   threshold = 10.0
+
+   return threshold unless File.exist? COVERAGE_YML
+
+   yaml  = read_yaml_file COVERAGE_YML
+
+   threshold = yaml["THRESHOLD"].to_s
+
+   threshold.to_f
+ end
+
+
+ # write the given `value' in `yaml' format
+ # back into `log' file.
+ #
+ def write_yaml_threshold value
+   File.open(COVERAGE_YML, 'w') do |f|
+     f.write({"THRESHOLD" =&gt; value}.to_yaml)
+   end
+ end
+</code></pre>
+
+<p>Now the updated rake tasks.</p>
+
+<pre><code> # read the previous threshold once and
+ # reuse it in tasks to reduce file-access
+ #
+ @old_threshold = read_yaml_threshold
+
+
+ # the SpecTask from above
+ #
+ desc "Run all rspec tests with RCOV"
+ Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ # the "verify" task which is still executable
+ # because the`threshold' property contains the
+ # current `threhold' value from `coverage.yml'
+ #
+ desc "Check code-coverage of project"
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+
+   threshold   = @old_threshold
+
+   Rake::Task['rcov'].execute
+
+   t.threshold   = threshold
+   t.index_html  = 'coverage/index.html'
+ end
+
+
+ # the actual 'capture and update' task which retrieves the 'previous'
+ # threshold and executes the `VerifyTask' and captures the 'new' threshold
+ # and finally compares them. if `new' threshold has increased the
+ # `coverage.yml' is updated.
+ #
+ task :run_verify do |t|
+
+     old_threshold = @old_threshold
+
+     log = `rake verify_rcov -f #{__FILE__}` # | tee coverage_log.txt`
+
+     new_threshold = threshold_from log
+
+     if new_threshold.to_f &gt; old_threshold.to_f
+
+       begin
+         write_yaml_threshold new_threshold
+       rescue =&gt; e
+         puts "ERROR #{e.message} "
+       end
+
+       puts "Finished ..."
+
+     else
+       if new_threshold.to_f &gt;= old_threshold.to_f
+         puts "Finished with `coverage' of #{new_threshold}% ..."
+       else
+         puts "Failed to finish with `coverage' of #{old_threshold}% =&gt; #{new_threshold}% ..."
+       end
+     end
+ end
+</code></pre>
+
+<p>Although i&rsquo;m quite happy with it as it works for me i would like to see if either
+there&rsquo;s a more convenient or `nerdy' way to implement this. I&rsquo;m still learning and
+every input is highly appreciated. :)</p>
+
+<p>If you found this useful feel free to share or comment.</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Keep your ~/.bash_history entries unique]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique/"/>
+    <updated>2011-05-07T11:00:58+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique</id>
+    <content type="html"><![CDATA[<p>When often using the terminal you don&rsquo;t want to type certain commands over and over again. Although recent commands are stored in the <code>.bash_history</code> in your home-directory they will be overwritten at some point when a new terminal is opened. So you won&rsquo;t be able to use <code>Ctrl + R</code> to search for commands you&rsquo;ve typed longer time ago.
+Luckily there is an option to append the terminal commands instead of overwriting them.</p>
+
+<!-- more -->
+
+
+<pre><code>$ shopt -s histappend
+</code></pre>
+
+<p>Add this command to your <code>~/.bash_profile</code> and you&rsquo;ll never lose a command anymore.
+As a side effect the <code>.bash_history</code> file will grow over time as well as be poluted with a lot of redundant commands.
+So i wrote a little ruby script to keep the <code>~/.bash_profile</code> commands unique.</p>
+
+<p>Here we go..</p>
+
+<p>```
+ #!/usr/bin/env ruby
+ # Ruby 1.9.2
+ # encoding: utf-8</p>
+
+<p> # This little script keeps the entries in the ~/.bash_history file unique
+ # Might be useful when working with: $ shopt -s histappend
+ #
+ # author   david linse (<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#58;&#x64;&#x61;&#x76;&#105;&#100;&#64;&#x38;&#98;&#x61;&#108;&#108;&#x2d;&#109;&#101;&#100;&#x69;&#97;&#46;&#100;&#101;">&#x64;&#x61;&#x76;&#x69;&#100;&#x40;&#56;&#x62;&#97;&#108;&#x6c;&#x2d;&#x6d;&#101;&#x64;&#x69;&#97;&#46;&#x64;&#x65;</a>)
+ # version  0.0.1</p>
+
+<p> history_path = &ldquo;/Users/#{ENV[&lsquo;USER&rsquo;]}&rdquo;
+ history_file = &ldquo;.bash_history&rdquo;</p>
+
+<p> history = File.join history_path, history_file</p>
+
+<p> entries = Array.new
+ uniques = Array.new</p>
+
+<p> begin
+   file = File.open(history).each do |line|</p>
+
+<pre><code> entries.push line
+</code></pre>
+
+<p>   end
+ rescue
+   abort &ldquo;nError! could not find: #{history} ..n &rdquo;
+ end</p>
+
+<p> uniques = entries.uniq
+ removed = (entries.size &ndash; uniques.size).to_s</p>
+
+<p> output = File.new(history, &ldquo;w+&rdquo;)
+ output.write(uniques)
+ output.close</p>
+
+<p> file.close</p>
+
+<p> msg = &lsquo;&rsquo;
+ msg &lt;&lt; &ldquo;nBash History Uniquifiern
+ Removed #{removed} entries from #{entries.size},
+ now #{uniques.size} in #{history}n &rdquo;</p>
+
+<p> puts msg
+```</p>
+
+<p>You can use and/or modify it to your own needs.
+Maybe there is someone of you who&rsquo;s running Ruby on an Windowz
+machine and could implement an appropriate modification and post it back?</p>
+
+<p>That&rsquo;s it, more simple ruby stuff to come..<br/>
+Thanks for reading and feel free to leave a comment.</p>
+
+<p>~ David</p>
+
+<p><em>Update:</em> I added some error handling for the case the history does not exist.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to send or receive JSON encoded data from flash to a server-side-script]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/"/>
+    <updated>2010-12-07T18:42:31+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3</id>
+    <content type="html"><![CDATA[<p>As contributor in some flash-related forums i noticed, that a lot of people are asking
+the same question over and over again.</p>
+
+<blockquote><p>How to send or receive JSON-encoded data from flash to a server-side-script</p></blockquote>
+
+<p>In this little &ldquo;tutorial&rdquo; we&rsquo;ll send an arbitrary JSON-encoded <code>Object</code> from flash
+to our server-script, alter the value of its property and send it; even JSON encoded;
+back from the server to flash.</p>
+
+<!--more-->
+
+
+<p>First we need to know how the object looks like:</p>
+
+<p>```as3</p>
+
+<pre><code>var person: Object = new Object();
+    person.age = 17;    // this is the property we want to change
+</code></pre>
+
+<p>```</p>
+
+<p>Now let&rsquo;s do the server-side script which receives and sends our JSON endcoded data.</p>
+
+<p>Here is a little example:</p>
+
+<p>```php
+&lt;?php
+//
+// only continue if data is sent in the &lsquo;data&rsquo; property
+//
+if (!empty($_REQUEST[&lsquo;data&rsquo;])) {</p>
+
+<pre><code>//
+// retrieve the sent data
+//
+$data = urldecode(utf8_decode(stripslashes($_REQUEST['data'])));
+
+//
+// re-create the sent object &lt;code&gt;person&lt;/code&gt;
+//
+$decoded_person = json_decode( $data );
+
+//
+// the ravages of time
+//
+happy_birthday( $decoded_person );
+
+//
+// prepare the data for sending back to flash
+//
+$encoded_person = json_encode( $decoded_person );
+
+//
+// send
+//
+print($encoded_person);
+</code></pre>
+
+<p>}</p>
+
+<p>//
+// increase the <code>age</code> property
+// of <code>person</code> and return the object
+//
+function happy_birthday ( $person ) {</p>
+
+<pre><code>(int) $person-&gt;age++;
+return $person;
+</code></pre>
+
+<p>}
+?>
+```</p>
+
+<p>```as3</p>
+
+<p>import com.adobe.serialization.json.JSON;</p>
+
+<p>//
+// URLLoader event-handler
+//
+function completeHandler (e:Event):void {</p>
+
+<pre><code>trace('::complete()');
+trace('--received: '+ e.target.data);
+</code></pre>
+
+<p>}</p>
+
+<p>function ioHandler (evt:IOErrorEvent): void {</p>
+
+<pre><code>trace("::IOError()n"+ evt.text );
+</code></pre>
+
+<p>}</p>
+
+<p>function securityHandler (evt:SecurityErrorEvent): void {</p>
+
+<pre><code>trace("::SecurityError()n"+ evt.text );
+</code></pre>
+
+<p>}</p>
+
+<p>//
+// setup the data we want to send
+//
+var person: Object  = new Object();</p>
+
+<pre><code>person.age = 17;
+</code></pre>
+
+<p>var encoded_person: String = JSON.encode(person);
+trace(&lsquo;&mdash;sending: &rsquo;+ encoded_person); // {&ldquo;age&rdquo;:17}</p>
+
+<p>//
+// encode and store the data
+//
+var vars: URLVariables = new URLVariables();</p>
+
+<pre><code>vars.data = JSON.encode(person);
+</code></pre>
+
+<p>var request: URLRequest = new URLRequest();</p>
+
+<pre><code>request.url    = "http://localhost/data.php";
+request.data   = vars;
+request.method = URLRequestMethod.POST;
+</code></pre>
+
+<p>//
+// add event listener and sent the encoded data
+//
+var loader: URLLoader = new URLLoader();</p>
+
+<pre><code>loader.addEventListener(Event.COMPLETE, completeHandler);
+loader.addEventListener(IOErrorEvent.IO_ERROR, ioHandler);
+loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityHandler);
+loader.load(request);
+</code></pre>
+
+<p>```</p>
+
+<p>If all&rsquo;s gone well you should see the following output..</p>
+
+<p>```as3</p>
+
+<pre><code>--sending: {"age":17}
+::complete()
+--received: {"age":18}
+</code></pre>
+
+<p>```</p>
+
+<p>Et voila..</p>
+
+<p>Now you just need to decode the data in the <code>completeHandler</code> like so, and you&rsquo;ll have your object with the changed value.</p>
+
+<p>```as3</p>
+
+<p>function completeHandler (e:Event):void {</p>
+
+<pre><code>trace('::complete()');
+trace('--received: '+ e.target.data);
+
+try {
+
+    var person: Object = JSON.decode(e.target.data);
+
+    trace('--age is now: '+ person.age);  // 18
+}
+catch (e:Error) {
+    trace('ERROR - could not decode data..');
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>and thats it..</p>
+
+<p>If you find this useful feel free to share or leave a comment if you like.
+Thanks for reading..</p>
+
+<p>~ David</p>
+
+<!--
+Download: [as3.json.encoding.zip](http://8ball-media.de/wp/wp-content/uploads/2010/05/as3.json_.encoding.zip)
+-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sending Mails Using Ant MailTask FDT/Eclipse]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/"/>
+    <updated>2010-11-28T22:06:26+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt</id>
+    <content type="html"><![CDATA[<p>I always wanted to make use of the &ldquo;Post compile ant file&rdquo; from Eclipse.
+After hours of searching, trial and (mostly) error i finally got it working.
+The Ant-MailTask sends a mail from within Eclipse including attachment.</p>
+
+<p>The downside is that i was unable to get this running with my default Ant installation (v.1.7.1)
+and had to install a newer version of Ant.</p>
+
+<p>I dont want to bore you with details of my odyssey but show you how it gets done in more or
+less four steps.</p>
+
+<!-- more -->
+
+
+<p>First check the version of your current Ant installation by typing
+<code>ant -version</code> in your Terminal which should give you something like:</p>
+
+<pre><code>Apache Ant version 1.8.1 compiled on April 30 2010
+</code></pre>
+
+<p>If you have the version 1.8.1 installed already you can obviously skip the first step
+as well as step three.</p>
+
+<p>Here we go:</p>
+
+<h4>Step 1.)<br/></h4>
+
+<p>Download <a href="http://archive.apache.org/dist/ant/">the latest Ant version</a> (1.8.1 at the time of writing)
+and put it wherever you like. As i&rsquo;m on OS X  i put it into <code>/usr/local/apache-ant-1.8.1/</code></p>
+
+<h4>Step 2.)<br/></h4>
+
+<p>Next step is to download and extract some additional JAR files.
+You&rsquo;ll need the <a href="http://java.sun.com/products/javamail/downloads/index.html"> JavaMail API</a> and
+the <a href="http://java.sun.com/products/javabeans/glasgow/jaf.html">NetBeans Activation Framework</a>.</p>
+
+<p>Extract and copy these files into either <code>~/.ant/lib/</code> or into the <code>lib</code> folder of your
+Ant installation directory. (To save you some time, i&rsquo;ve put these files into a zip at
+the end of the article. There may changes or updates over time but for now they should do the job)</p>
+
+<h4>Step 3.)<br/></h4>
+
+<p>The final step is to create or update the alias to the Ant binary.
+Open the Terminal again and use the following command.</p>
+
+<pre><code>sudo ln -s /usr/local/apache-ant-1.8.1/bin/ant /usr/bin/ant
+</code></pre>
+
+<p>(fit the paths to your needs if you&rsquo;ve choosen a different directory)</p>
+
+<p>If you got an error message, rename the current alias in <code>/usr/bin</code> to e.g. <code>ant-1.7.1</code></p>
+
+<p>Now the alias should point to your new Ant installation and <code>ant -version</code> should give you:
+<code>Apache Ant version 1.8.1 compiled on April 30 2010</code>.</p>
+
+<p>If you want to be the previous Ant version your default again, rename your <code>ant-1.7.1</code>
+to <code>ant</code> or create a new alias using the following command in the terminal.</p>
+
+<pre><code>sudo ln -s /usr/share/ant/bin/ant /usr/bin/ant
+</code></pre>
+
+<h4>Step 4.)<br/></h4>
+
+<p>The last step is to make the downloaded JAR available in the Eclipse environment.
+All you need to do is go to:</p>
+
+<pre><code>Preferences &gt; Ant &gt; Runtime &gt; Classpath &gt; Add External JARs
+</code></pre>
+
+<p>and select the downloaded JAR files.</p>
+
+<p>Thats pretty much all you have to do for preparation.<br/>
+Now let&rsquo;s see how an ant-target which makes usage of  the MailTask could look like.</p>
+
+<p>```xml</p>
+
+<pre><code>&lt;target name="send.mail" description="sends a notication mail"&gt;
+
+  &lt;property name="mail.host" value="mailserver.myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.port" value="25"&gt;&lt;/property&gt;
+  &lt;property name="mail.user" value="me@myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.pass" value="mysecretpassword"&gt;&lt;/property&gt;
+  &lt;property name="mail.from" value="me@myprovider.com"&gt;&lt;/property&gt;
+  &lt;property name="mail.to" value="you@myprovider.com"&gt;&lt;/property&gt;
+
+  &lt;property name="subject"
+            value="Test Message sent via Ant MailTask"&gt;&lt;/property&gt;
+
+  &lt;property name="message"
+            value="Hello World, i was sent by the Ant MailTask"&gt;&lt;/property&gt;
+
+  &lt;mail mailport="${mail.port}" charset="UTF-8"
+        failonerror="true"
+        mailhost="${mail.host}"
+        user="${mail.user}"
+        password="${mail.pass}"
+        subject="${subject}"&gt;
+
+    &lt;from address="${mail.from}"&gt;&lt;/from&gt;
+    &lt;to address="${mail.to}"&gt;&lt;/to&gt;
+
+    &lt;message&gt;${message}&lt;/message&gt;
+
+    &lt;fileset dir="${basedir}"&gt;
+      &lt;include name="*.zip"&gt;&lt;/include&gt;
+    &lt;/fileset&gt;
+  &lt;/mail&gt;
+
+  &lt;tstamp&gt;
+    &lt;format pattern="MM/dd/yyyy hh:mm aa"
+            property="send.time"
+            unit="hour"&gt;&lt;/format&gt;
+  &lt;/tstamp&gt;
+
+  &lt;echo message="Mail successfully sent at ${send.time}"&gt;&lt;/echo&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>I think it is pretty self-explanatory. This would send an e-mail with
+the subject:<br/>
+&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#58;&#x6d;&#x65;&#64;&#109;&#x79;&#x70;&#x72;&#111;&#x76;&#105;&#100;&#101;&#114;&#x2e;&#x63;&#x6f;&#109;">&#x6d;&#x65;&#64;&#x6d;&#x79;&#x70;&#114;&#111;&#x76;&#x69;&#100;&#101;&#114;&#46;&#99;&#111;&#109;</a>&rdquo; to &ldquo;<a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#111;&#x3a;&#x79;&#111;&#x75;&#64;&#x6d;&#121;&#x70;&#114;&#x6f;&#x76;&#x69;&#x64;&#101;&#114;&#x2e;&#x63;&#x6f;&#x6d;">&#121;&#111;&#117;&#64;&#109;&#121;&#112;&#x72;&#111;&#x76;&#105;&#100;&#101;&#x72;&#x2e;&#x63;&#111;&#109;</a>&rdquo;
+with &ldquo;Hello World, i was sent by the Ant MailTask&rdquo; as message and all zip-files from
+the <code>basedir</code> as attachment.</p>
+
+<pre><code>From:    "me@myprovider.com"
+To:      "you@myprovider.com"
+Subject: "Test Message sent via Ant MailTask"
+Body:    "Hello World, i was sent by the Ant MailTask"
+</code></pre>
+
+<p>So far so good.</p>
+
+<p>Put this task into a <code>build.xml</code> (setup a <code>properties</code> file to make it more generic)
+and provide the appropriate credentials for your mail provider. Save it in your project
+directory or update your existing build file and run the following command in the terminal:</p>
+
+<pre><code>$ cd path/to/project
+$ ant send.mail
+</code></pre>
+
+<p>If everything worked as expected the output should look like this:</p>
+
+<pre><code>send.mail:
+     [mail] Sending email: Hello World, i was sent by the Ant MailTask
+     [mail] Sent email with 1 attachments
+     [echo] Mail successfully sent at 11/28/2010 04:17 PM
+
+BUILD SUCCESSFUL
+Total time: 1 second
+</code></pre>
+
+<p>Now insert the path to your <code>build.xml</code> in the <code>Ant Task</code> tab in your launch-configuration
+dialog and you&rsquo;re done. :)</p>
+
+<p>I use it now (in a more fine-grained setup) e.g. in the launch-configuration for my
+&lsquo;release-build&rsquo; to notify a customer about new versions, updates and so on.</p>
+
+<p>Hopefully you&rsquo;ve found some useful informations in this post. Thanks for reading and feel
+free to leave a comment or share it if you like.</p>
+
+<p>cheers,
+david</p>
+
+<!--Download: [Ant Mailtask JAR Files]()-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How To Protect Your Game From Being Rebranded (AS2)]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/"/>
+    <updated>2010-11-21T18:29:41+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2</id>
+    <content type="html"><![CDATA[<p>Eric Heimburg from <a href="http://flashgamelicense.com">FlashGameLicense.com</a> wrote an article about
+<a href="http://www.flashgamelicense.com/blog/2010/11/how-to-protect-your-game-from-being-rebranded/">How to protect your game from beeing rebranded</a> for Actionscript3.</p>
+
+<p>Because i&rsquo;m developing flash-based-games here and there i found this article quite interesting. After reading this post i digged in my old experiments from the good old Actionscript2 times to get familiar again with the syntax. It&rsquo;s been &lsquo;a couple of days&rsquo; since i wrote my last lines of code in AS2. But following the idea of Eric the code is pretty much the same exept a few loops more.</p>
+
+<!-- more -->
+
+
+<p><strong>Important Note:</strong> As stated in the article this makes only sense if you&rsquo;re obfuscating your code using one of the encryption tools out there !</p>
+
+<p>Back to topic, here is what it will look like in <em>Actionscript 2</em>:</p>
+
+<p>```as3</p>
+
+<pre><code>var bmp: BitmapData = new BitmapData(300, 225);
+var result: Number = 0;
+var x: Number = 0;
+var y: Number = 0;
+var w: Number = bmp.width;
+var h: Number = bmp.height;
+
+for (x=0; x&lt;w; x++) {
+  for (y=0; y&lt;h; y++) {
+    result += bmp.getPixel(x, y);
+  }
+}
+
+trace(result); // e.g. 556977304436
+</code></pre>
+
+<p>```</p>
+
+<p>For an image with e.g. 300x225 pixel it took about 90ms to summarize the &ldquo;checksum&rdquo;.
+Below a little overview of my results for some image sizes.</p>
+
+<ul>
+<li>640x480 &ndash; 379 ms</li>
+<li>800x600 &ndash; 547 ms</li>
+<li>1024x768 &ndash; 1436 ms</li>
+</ul>
+
+
+<p>Hm, approx 1.5 secs for an 1024x768 pixel sized image. This is a quite noticable duration.
+Especially when you are loading a lot of large scaled images or have a lot of them in your library this would affect the user experience in a negative way.</p>
+
+<p>To see if we can push this a bit further and how much this could be speed up i wrote some test-methods.
+My first idea was to take just a 1-pixel line in the horzontal and the vertical direction.</p>
+
+<p>Which would look like this:</p>
+
+<p>```as3</p>
+
+<pre><code>/**
+ * Summarize the color-values of a 1-pixel line in horizontal
+ * and vertical direction to build a checksum-like value for
+ * the passed BitmapData object.
+ *
+ * @param   bmp The BitmapData object to build the checksum for
+ * @param   offset  The offset for x and y (optional); default (10)
+ * @return    The checksum
+ */
+function horizontal_vertical (bmp:BitmapData, offset:Number): Number {
+
+    offset = (offset == undefined) ? 10 : offset;
+
+    var result: Number = 0;
+
+    var x: Number = 0;
+    var y: Number = 0;
+    var w: Number = bmp.width;
+    var h: Number = bmp.height;
+
+    for (x = offset;x &lt; w; x++) {
+        result += bmp.getPixel(x, y);
+    }
+    for (y = offset;y &lt; h; y++) {
+        result += bmp.getPixel(x, y);
+    }
+
+    return result;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The second way is to get the values from the diagonales in both directions. Which means from &ldquo;top-left&rdquo; to &ldquo;bottom-right&rdquo; and from &ldquo;top-right&rdquo; to &ldquo;bottom-left&rdquo;. Here is the method for it.</p>
+
+<p>```as3</p>
+
+<pre><code>/**
+ * Summarize the color-values of a 1-pixel line in both
+ * diagonal directions to build a checksum-like value for
+ * the passed BitmapData object.
+ *
+ * @param   o The BitmapData object to build the checksum for
+ * @return    The checksum
+ */
+function diagonal (o:BitmapData): Number {
+
+  var result: Number = 0;
+  var x: Number = 0;
+  var y: Number = 0;
+  var w: Number = o.width;
+  var h: Number = o.height;
+
+  for (x=0; x&lt;w; x++, y++) {
+    result += o.getPixel(x, y);
+  }
+
+  for (x=w; x&gt;0; x--, y--) {
+    result += o.getPixel(x, y);
+  }
+
+  return result;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>And finally a method to combine the both values but this one is more for &ldquo;cosmetic&rdquo; purposes.. ;)</p>
+
+<p>```as3</p>
+
+<pre><code>/**
+ * combine the results of horizontal and diagonal checksum values
+ * @param   bmp The BitmapData object to build the checksum for
+ * @return    The checksum
+ */
+function combined (bmp:BitmapData): Number {
+  return horizontal_vertical(bmp) + diagonal(bmp);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>Now it&rsquo;s time to measure the execution times for the test-methods. Lets do this quick and simple:</p>
+
+<p>```as3</p>
+
+<pre><code>var t1: Number  = getTimer();
+var chk: Number = combined (bmp);
+var t2: Number  = getTimer();
+
+trace('combined');
+trace(' - executed in: '+ (t2-t1) +' ms');
+trace(' - version: ' + chk);
+
+// combined
+// - executed in: 9 ms
+// - version: 11356386289
+</code></pre>
+
+<p>```</p>
+
+<p>9ms! That&rsquo;s nice, right ? And you know what ? This is the execution time for a <em>1024x768</em> pixel image ! So as you can see, even with a large image its incredebly fast.
+To complete the overview, here my results for the other image sizes and the #combine-method.</p>
+
+<ul>
+<li>640x480 &ndash; 5 ms</li>
+<li>800x600 &ndash; 6 ms</li>
+<li>1024x768 &ndash; 9 ms</li>
+</ul>
+
+
+<p>They may vary on different hardware setups but i thinks it&rsquo;s performant enough to use it even on older machines.</p>
+
+<p>// results for an image with <em>1024x768</em> pixel</p>
+
+<ul>
+<li>complete
+
+<ul>
+<li>executed in: 1214 ms</li>
+<li>version: 4442572803510</li>
+</ul>
+</li>
+<li>horizontal/vertical
+
+<ul>
+<li>executed in: 3 ms</li>
+<li>version: 2505805708</li>
+</ul>
+</li>
+<li>diagonal
+
+<ul>
+<li>executed in: 5 ms</li>
+<li>version: 8850580581</li>
+</ul>
+</li>
+<li>combined
+
+<ul>
+<li>executed in: 9 ms</li>
+<li>version: 11356386289</li>
+</ul>
+</li>
+</ul>
+
+
+<p>The validation part is pretty much the same as in Actionscript3 so read the article mentioned above to see implementation details.</p>
+
+<p>After all i think this approach produces a reasonable checksum value and is fast enough and to use it your daily workflow as (game)-developer.<br/></p>
+
+<p>Thanks for reading. Feel free to share this or leave a comment.</p>
+]]></content>
+  </entry>
+  
+</feed>

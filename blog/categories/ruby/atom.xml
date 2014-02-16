@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ruby | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-02-16T16:28:49+01:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RCov::VerifyTask "threshold" auto-update monitor]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/"/>
+    <updated>2011-10-03T03:46:22+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor</id>
+    <content type="html"><![CDATA[<p>When developing TDD or BDD in <code>Ruby (1.9.2)</code> using the <code>RCov::VerifyTask</code>
+you need to fullfill a certain <code>threshold</code> to make a build successful.</p>
+
+<p>It can be quite annoying to update the (hopefully) increased <code>threshold</code> of the
+<code>RCov::VerifyTask</code> in your <code>Rakefile</code> after each successful build.
+So I did some experiments and the following script is the result.</p>
+
+<!-- more -->
+
+
+<p>A common <a href="http://rspec.rubyforge.org/rspec/1.2.6/classes/RCov/VerifyTask.html"><code>RCov::VerifyTask</code></a> setup might look like:</p>
+
+<pre><code> Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+   t.threshold   = 10.00                     # to get started
+   t.index_html  = 'coverage/index.html'     # the path to html report
+ end
+</code></pre>
+
+<p>It uses another <code>:task</code> to capture the output of the actual <code>RCov::VerifyTask</code>
+and writes the <code>threshold</code> into a <code>coverage.yml</code> file. This <code>threshold</code> value
+is taken into comparison at the next build and updated at next build if
+its <code>value</code> has increased.</p>
+
+<p>First the method to read and write the <code>threshold</code> value from/to
+a <code>./coverage.yml</code>.</p>
+
+<pre><code> # the `log' file in `yaml' format
+ #
+ COVERAGE_YML   = 'coverage.yml'
+
+ # read the last 'threshold' from the .yml file
+ # and return `10.0' as value if the file isn't existant
+ #
+ def read_yaml_threshold
+
+   threshold = 10.0
+
+   return threshold unless File.exist? COVERAGE_YML
+
+   yaml  = read_yaml_file COVERAGE_YML
+
+   threshold = yaml["THRESHOLD"].to_s
+
+   threshold.to_f
+ end
+
+
+ # write the given `value' in `yaml' format
+ # back into `log' file.
+ #
+ def write_yaml_threshold value
+   File.open(COVERAGE_YML, 'w') do |f|
+     f.write({"THRESHOLD" =&gt; value}.to_yaml)
+   end
+ end
+</code></pre>
+
+<p>Now the updated rake tasks.</p>
+
+<pre><code> # read the previous threshold once and
+ # reuse it in tasks to reduce file-access
+ #
+ @old_threshold = read_yaml_threshold
+
+
+ # the SpecTask from above
+ #
+ desc "Run all rspec tests with RCOV"
+ Spec::Rake::SpecTask.new('rcov') do |t|
+   t.spec_files  = FileList['spec/**/*.rb']
+   t.rcov        = true
+   t.rcov_opts   = ['--exclude', 'lib', '--exclude', 'gems']
+   t.libs        &lt;&lt; Dir["lib/**/*"]
+ end
+
+
+ # the "verify" task which is still executable
+ # because the`threshold' property contains the
+ # current `threhold' value from `coverage.yml'
+ #
+ desc "Check code-coverage of project"
+ RCov::VerifyTask.new(:verify_rcov) do |t|
+
+   threshold   = @old_threshold
+
+   Rake::Task['rcov'].execute
+
+   t.threshold   = threshold
+   t.index_html  = 'coverage/index.html'
+ end
+
+
+ # the actual 'capture and update' task which retrieves the 'previous'
+ # threshold and executes the `VerifyTask' and captures the 'new' threshold
+ # and finally compares them. if `new' threshold has increased the
+ # `coverage.yml' is updated.
+ #
+ task :run_verify do |t|
+
+     old_threshold = @old_threshold
+
+     log = `rake verify_rcov -f #{__FILE__}` # | tee coverage_log.txt`
+
+     new_threshold = threshold_from log
+
+     if new_threshold.to_f &gt; old_threshold.to_f
+
+       begin
+         write_yaml_threshold new_threshold
+       rescue =&gt; e
+         puts "ERROR #{e.message} "
+       end
+
+       puts "Finished ..."
+
+     else
+       if new_threshold.to_f &gt;= old_threshold.to_f
+         puts "Finished with `coverage' of #{new_threshold}% ..."
+       else
+         puts "Failed to finish with `coverage' of #{old_threshold}% =&gt; #{new_threshold}% ..."
+       end
+     end
+ end
+</code></pre>
+
+<p>Although i&rsquo;m quite happy with it as it works for me i would like to see if either
+there&rsquo;s a more convenient or `nerdy' way to implement this. I&rsquo;m still learning and
+every input is highly appreciated. :)</p>
+
+<p>If you found this useful feel free to share or comment.</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Some Ruby Idioms]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms/"/>
+    <updated>2011-06-12T23:00:25+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms</id>
+    <content type="html"><![CDATA[<p>A post as a note to myself to remember some Ruby Idioms ..</p>
+
+<pre><code> # $ruby 1.9.2
+ #
+ # Add a value to an array unless its not
+ # contained already and even it's contained
+ # multiple times reduce it to a single occurence.
+
+ foo  = ['bar', 'baz', 'baz']    # =&gt;  ["bar", "baz", "baz"]
+ foo |= ['baz']                  # =&gt;  ["bar", "baz"]
+
+ # Parallel assignment by "un-splatting" an result array
+ # Instead of:
+ match = "Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
+ catch = match[1]
+
+ # Use:
+ catch, match = *"Ruby 1.9.2 is awesome".match(/Ruby (d.+) is awesome/)
+
+ # catch =&gt; "Ruby 1.9.2 is awesome"
+ # match =&gt; "1.9.2"
+</code></pre>
+
+<p>more to come..</p>
+]]></content>
+  </entry>
+  
+</feed>

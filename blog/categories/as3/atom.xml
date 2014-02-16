@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: AS3 | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/as3/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-02-16T16:28:49+01:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Tweaking Flash (CS5) - Duplicate Symbol Dialog]]></title>
+    <link href="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/"/>
+    <updated>2011-08-09T21:39:39+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog</id>
+    <content type="html"><![CDATA[<p>If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of <em>Adobe Flash CS5</em> maybe here&rsquo;s a solution.</p>
+
+<!-- more -->
+
+
+<h5>The situation<br/></h5>
+
+<p>By default the name for a new duplicated symbol is something like this:</p>
+
+<ul>
+<li><code>Kopie von NAME_OF_SYMBOL</code> .. (german)</li>
+<li><code>Copy of NAME_OF_SYMBOL</code> .. (english)</li>
+</ul>
+
+
+<p>How ugly is that ? Instead of just hitting the backspace to remove the &ldquo;copy-part&rdquo;
+you have to use the mouse and/or several key strokes to get rid of it.<br/>
+I want it more like this:</p>
+
+<ul>
+<li> <code>NAME_OF_SYMBOL Kopie</code></li>
+<li> <code>NAME_OF_SYMBOL copy</code></li>
+</ul>
+
+
+<p>So here is how to do it ..</p>
+
+<h5>The solution<br/></h5>
+
+<p>Close your Flash if it&rsquo;s running and go for a hunt for a file named <em>&ldquo;fl_dictionary.dat&rdquo;</em>
+and open it in your favourite editor. It&rsquo;s a alway a good idea to make a backup before
+making any changes. ;)</p>
+
+<p>Assuming you&rsquo;ve got installed <a href="http://macromates.com" title="Textmate">Textmate</a> and you&rsquo;re on:</p>
+
+<ul>
+<li><p> OSX, in a terminal it is:</p>
+
+<p>   <code>find /Applications -iname "fl_dictionary.dat" -print0 | xargs -0 mate</code></p></li>
+<li><p> M$, in the shell it is:</p>
+
+<p>   <code>.. uhm, could you provide something .. ?</code> (leave a comment and i&rsquo;ll add it &hellip;)</p></li>
+</ul>
+
+
+<p>Now search for <code>"Kopie von %s"</code> or  <code>"Copy of %s"</code> (without the quotes)
+and change it to what ever you want to see when duplicating a symbol.
+The <code>%s</code> is the placeholder for the symbol you&rsquo;re going to duplicate later.
+I changed my to &ldquo;<code>%s copy</code>&rdquo; which gives me the above mentioned format of <code>NAME_OF_SYMBOL copy</code>.<br/>
+Save the file restart Flash and (hopefully) you&rsquo;ll see your made changes.</p>
+
+<p>That&rsquo;s it ..<br/>
+Feel free to spread and or leave a comment below..</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to send or receive JSON encoded data from flash to a server-side-script]]></title>
+    <link href="http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/"/>
+    <updated>2010-12-07T18:42:31+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3</id>
+    <content type="html"><![CDATA[<p>As contributor in some flash-related forums i noticed, that a lot of people are asking
+the same question over and over again.</p>
+
+<blockquote><p>How to send or receive JSON-encoded data from flash to a server-side-script</p></blockquote>
+
+<p>In this little &ldquo;tutorial&rdquo; we&rsquo;ll send an arbitrary JSON-encoded <code>Object</code> from flash
+to our server-script, alter the value of its property and send it; even JSON encoded;
+back from the server to flash.</p>
+
+<!--more-->
+
+
+<p>First we need to know how the object looks like:</p>
+
+<p>```as3</p>
+
+<pre><code>var person: Object = new Object();
+    person.age = 17;    // this is the property we want to change
+</code></pre>
+
+<p>```</p>
+
+<p>Now let&rsquo;s do the server-side script which receives and sends our JSON endcoded data.</p>
+
+<p>Here is a little example:</p>
+
+<p>```php
+&lt;?php
+//
+// only continue if data is sent in the &lsquo;data&rsquo; property
+//
+if (!empty($_REQUEST[&lsquo;data&rsquo;])) {</p>
+
+<pre><code>//
+// retrieve the sent data
+//
+$data = urldecode(utf8_decode(stripslashes($_REQUEST['data'])));
+
+//
+// re-create the sent object &lt;code&gt;person&lt;/code&gt;
+//
+$decoded_person = json_decode( $data );
+
+//
+// the ravages of time
+//
+happy_birthday( $decoded_person );
+
+//
+// prepare the data for sending back to flash
+//
+$encoded_person = json_encode( $decoded_person );
+
+//
+// send
+//
+print($encoded_person);
+</code></pre>
+
+<p>}</p>
+
+<p>//
+// increase the <code>age</code> property
+// of <code>person</code> and return the object
+//
+function happy_birthday ( $person ) {</p>
+
+<pre><code>(int) $person-&gt;age++;
+return $person;
+</code></pre>
+
+<p>}
+?>
+```</p>
+
+<p>```as3</p>
+
+<p>import com.adobe.serialization.json.JSON;</p>
+
+<p>//
+// URLLoader event-handler
+//
+function completeHandler (e:Event):void {</p>
+
+<pre><code>trace('::complete()');
+trace('--received: '+ e.target.data);
+</code></pre>
+
+<p>}</p>
+
+<p>function ioHandler (evt:IOErrorEvent): void {</p>
+
+<pre><code>trace("::IOError()n"+ evt.text );
+</code></pre>
+
+<p>}</p>
+
+<p>function securityHandler (evt:SecurityErrorEvent): void {</p>
+
+<pre><code>trace("::SecurityError()n"+ evt.text );
+</code></pre>
+
+<p>}</p>
+
+<p>//
+// setup the data we want to send
+//
+var person: Object  = new Object();</p>
+
+<pre><code>person.age = 17;
+</code></pre>
+
+<p>var encoded_person: String = JSON.encode(person);
+trace(&lsquo;&mdash;sending: &rsquo;+ encoded_person); // {&ldquo;age&rdquo;:17}</p>
+
+<p>//
+// encode and store the data
+//
+var vars: URLVariables = new URLVariables();</p>
+
+<pre><code>vars.data = JSON.encode(person);
+</code></pre>
+
+<p>var request: URLRequest = new URLRequest();</p>
+
+<pre><code>request.url    = "http://localhost/data.php";
+request.data   = vars;
+request.method = URLRequestMethod.POST;
+</code></pre>
+
+<p>//
+// add event listener and sent the encoded data
+//
+var loader: URLLoader = new URLLoader();</p>
+
+<pre><code>loader.addEventListener(Event.COMPLETE, completeHandler);
+loader.addEventListener(IOErrorEvent.IO_ERROR, ioHandler);
+loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityHandler);
+loader.load(request);
+</code></pre>
+
+<p>```</p>
+
+<p>If all&rsquo;s gone well you should see the following output..</p>
+
+<p>```as3</p>
+
+<pre><code>--sending: {"age":17}
+::complete()
+--received: {"age":18}
+</code></pre>
+
+<p>```</p>
+
+<p>Et voila..</p>
+
+<p>Now you just need to decode the data in the <code>completeHandler</code> like so, and you&rsquo;ll have your object with the changed value.</p>
+
+<p>```as3</p>
+
+<p>function completeHandler (e:Event):void {</p>
+
+<pre><code>trace('::complete()');
+trace('--received: '+ e.target.data);
+
+try {
+
+    var person: Object = JSON.decode(e.target.data);
+
+    trace('--age is now: '+ person.age);  // 18
+}
+catch (e:Error) {
+    trace('ERROR - could not decode data..');
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>and thats it..</p>
+
+<p>If you find this useful feel free to share or leave a comment if you like.
+Thanks for reading..</p>
+
+<p>~ David</p>
+
+<!--
+Download: [as3.json.encoding.zip](http://8ball-media.de/wp/wp-content/uploads/2010/05/as3.json_.encoding.zip)
+-->
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Comparing Objects using JSON in AS3]]></title>
+    <link href="http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3/"/>
+    <updated>2009-08-21T18:58:09+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3</id>
+    <content type="html"><![CDATA[<p>I recently stumbled over a post on <a href="http://blog.joshbuhler.com/">josh buhler&rsquo;s blog</a> regarding the comparison of two objects in AS3 using the <code>ByteArray</code>-class.
+You can read the post <a href="http://blog.joshbuhler.com/2008/02/11/comparing-objects-using-bytearrays/#more-325">here</a>.</p>
+
+<p>This brought me to an idea..
+Instead of comparing each byte in a loop why not using a serialized string and a strict comparison ?</p>
+
+<!-- more -->
+
+
+<p>so here we go..</p>
+
+<pre><code>package {
+
+    import com.adobe.serialization.json.JSON;
+    import com.adobe.serialization.json.JSONParseError;
+
+    /**
+     * class containing useful helper methods
+     * @author  david linse (davidlinse@8ball-media.com)
+     * @date  2009/21/08
+     */
+    public class ObjectUtil {
+
+    /**
+     * compares given objects and returns boolean
+     * result of compare action
+     *
+     * @param obj1  object
+     * @param obj2  object
+     * @return  result  boolean true when identical; false otherwise
+     */
+    static public function compare (obj1:Object, obj2:Object): Boolean {
+
+        try {
+            var value1: String = JSON.encode(obj1);
+            var value2: String = JSON.encode(obj2);
+        }
+        catch (e:JSONParseError) {
+            trace('[ERROR] ObjectUtil.compare() - '+ e.text);
+            return false;
+        }
+
+        return (value1 === value2);
+    }
+}
+</code></pre>
+
+<p>This was the class, let&rsquo;s go to a little usage sample..</p>
+
+<pre><code>  //-- an object and a reference to it
+  var foo: Object = {label:"hi, i'am foo.."};
+  var bar: Object = foo;
+
+  ObjectUtil.compare(foo, bar);   //-- result: true
+
+  //-- two identical objects
+  var foo1: Object = {label:"hi, i'am foo.."};
+  var bar1: Object = {label:"hi, i'am foo.."};
+
+  ObjectUtil.compare(foo1, bar1);   //-- result: true
+
+  //-- two different objects
+  var foo2: Object = {label:"hi, i'am foo.."};
+  var bar2: Object = {label:"howdy, i'am bar.."};
+
+  ObjectUtil.compare(foo2, bar2);   //-- result: false
+
+  //-- or more complex objects
+  var rect1:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect2:Rectangle = new Rectangle (0, 0, 100, 100);
+
+  ObjectUtil.compare(rect1, rect2);   //-- result: true
+
+  //-- or more complex objects
+  var rect3:Rectangle = new Rectangle (0, 0, 100, 100);
+  var rect4:Rectangle = new Rectangle (0, 0, 100, 200);
+
+  ObjectUtil.compare(rect3, rect4);   //-- result: false
+</code></pre>
+
+<p>works as expected..
+what did you think ? feel free to use and reply as well.</p>
+]]></content>
+  </entry>
+  
+</feed>

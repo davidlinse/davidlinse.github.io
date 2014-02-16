@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Status - 8ball-media</title>
+  <title>Tweaking Flash (CS5) - Duplicate Symbol Dialog - 8ball-media</title>
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="It&rsquo;s literally has been a while since my last post. Meanwhile I was allowed to play around with: CJS and AMD modules
-Backbone, Twitter &hellip;">
+  <meta name="description" content="If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of Adobe Flash CS5 maybe here&rsquo;s a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@ Backbone, Twitter &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://davidlinse.github.io/blog/2013/10/03/status">
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
@@ -81,7 +81,7 @@ Backbone, Twitter &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Status</h1>
+      <h1 class="entry-title">Tweaking Flash (CS5) - Duplicate Symbol Dialog</h1>
     
     
       <p class="meta">
@@ -97,32 +97,75 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-08-09T21:39:39+02:00" pubdate data-updated="true">Aug 9<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>It&rsquo;s literally has been a while since my last post.</p>
+<div class="entry-content"><p>If you feel like me and don&rsquo;t like the new naming convention when duplicating a symbol
+in the library of <em>Adobe Flash CS5</em> maybe here&rsquo;s a solution.</p>
 
-<p>Meanwhile I was allowed to play around with:</p>
+<!-- more -->
+
+
+<h5>The situation<br/></h5>
+
+<p>By default the name for a new duplicated symbol is something like this:</p>
 
 <ul>
-<li>CJS and AMD modules</li>
-<li><a href="http://backbonejs.org">Backbone</a>, <a href="https://github.com/twbs/bootstrap">Twitter Bootstrap</a>, <a href="http://jquery.com">jQuery</a> and <a href="http://mongodb.org">mongoDB</a> &mdash; to create (single page) apps</li>
-<li><a href="http://visionmedia.github.io/mocha">mocha</a>, <a href="http://sinonjs.org">sinon</a>, <a href="http://chaijs.com">chai</a>, <a href="http://pivotal.github.io/jasmine">Jasmine</a> &mdash; to test them</li>
-<li><a href="http://phantomjs.org">PhantomJS</a> and <a href="http://casperjs.com">CasperJS</a> &mdash; to run the tests</li>
-<li><a href="https://github.com/jsoverson/plato">Plato</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a> &mdash; to produce reports and metrics</li>
-<li><a href="http://gruntjs.com">grunt</a>, <a href="http://bower.io">bower</a> and <a href="http://yeoman.io">yeoman</a> &mdash; to run and build all the stuff above</li>
+<li><code>Kopie von NAME_OF_SYMBOL</code> .. (german)</li>
+<li><code>Copy of NAME_OF_SYMBOL</code> .. (english)</li>
 </ul>
 
 
-<p>A lot of <em>JavaScript</em> stuff, right ? <em>(Yes ma&#8217;, i&rsquo;m a JavaScript dude now)</em>.</p>
+<p>How ugly is that ? Instead of just hitting the backspace to remove the &ldquo;copy-part&rdquo;
+you have to use the mouse and/or several key strokes to get rid of it.<br/>
+I want it more like this:</p>
 
-<p>So as you may have noticed that&rsquo;s why i removed the word <em>ActionScript</em> from the blog title and changed it to <em>Little Pieces From Everything</em>.</p>
+<ul>
+<li> <code>NAME_OF_SYMBOL Kopie</code></li>
+<li> <code>NAME_OF_SYMBOL copy</code></li>
+</ul>
 
-<p>~david</p>
+
+<p>So here is how to do it ..</p>
+
+<h5>The solution<br/></h5>
+
+<p>Close your Flash if it&rsquo;s running and go for a hunt for a file named <em>&ldquo;fl_dictionary.dat&rdquo;</em>
+and open it in your favourite editor. It&rsquo;s a alway a good idea to make a backup before
+making any changes. ;)</p>
+
+<p>Assuming you&rsquo;ve got installed <a href="http://macromates.com" title="Textmate">Textmate</a> and you&rsquo;re on:</p>
+
+<ul>
+<li><p> OSX, in a terminal it is:</p>
+
+<p>   <code>find /Applications -iname "fl_dictionary.dat" -print0 | xargs -0 mate</code></p></li>
+<li><p> M$, in the shell it is:</p>
+
+<p>   <code>.. uhm, could you provide something .. ?</code> (leave a comment and i&rsquo;ll add it &hellip;)</p></li>
+</ul>
+
+
+<p>Now search for <code>"Kopie von %s"</code> or  <code>"Copy of %s"</code> (without the quotes)
+and change it to what ever you want to see when duplicating a symbol.
+The <code>%s</code> is the placeholder for the symbol you&rsquo;re going to duplicate later.
+I changed my to &ldquo;<code>%s copy</code>&rdquo; which gives me the above mentioned format of <code>NAME_OF_SYMBOL copy</code>.<br/>
+Save the file restart Flash and (hopefully) you&rsquo;ll see your made changes.</p>
+
+<p>That&rsquo;s it ..<br/>
+Feel free to spread and or leave a comment below..</p>
+
+<p>Regards<br/>
+~David</p>
+
+<!--This article was written in [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax)-->
+
+
+
 </div>
 
 
@@ -145,12 +188,12 @@ Backbone, Twitter &hellip;">
   
 
 
-<time datetime="2013-10-03T14:01:04+02:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2013</time>
+<time datetime="2011-08-09T21:39:39+02:00" pubdate data-updated="true">Aug 9<span>th</span>, 2011</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/stuff/'>stuff</a>
+    <a class='category' href='/blog/categories/as3/'>AS3</a>, <a class='category' href='/blog/categories/howto/'>howto</a>, <a class='category' href='/blog/categories/stuff/'>stuff</a>
   
 </span>
 
@@ -159,7 +202,7 @@ Backbone, Twitter &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2013/10/03/status/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2013/10/03/status/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/" >Tweet</a>
   
   
   
@@ -168,10 +211,10 @@ Backbone, Twitter &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Previous Post: RCov::VerifyTask "threshold" auto-update monitor">&laquo; RCov::VerifyTask "threshold" auto-update monitor</a>
+        <a class="basic-alignment left" href="/blog/2011/06/12/some-ruby-idioms/" title="Previous Post: Some Ruby Idioms">&laquo; Some Ruby Idioms</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/01/31/picks-of-the-month/" title="Next Post: picks of the month #1">picks of the month #1 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/" title="Next Post: RCov::VerifyTask "threshold" auto-update monitor">RCov::VerifyTask "threshold" auto-update monitor &raquo;</a>
       
     </p>
   </footer>

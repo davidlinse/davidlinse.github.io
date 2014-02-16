@@ -1,6 +1,64 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>
+            http://davidlinse.github.io/blog/2009/08/21/comparing-objects-using-json-in-as3/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design/</loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://davidlinse.github.io/blog/2010/08/23/android-on-htc-rhodium/</loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://davidlinse.github.io/blog/2010/09/10/eclipse-adt-plugin-update/</loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2010/11/21/how-to-protect-your-game-from-being-rebranded-as2/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2010/11/28/sending-mails-using-ant-mailtask-within-fdt/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2010/12/07/howto-send-and-receive-json-encoded-data-with-as3/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2011/05/07/keep-your-bash_history-entries-unique/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://davidlinse.github.io/blog/2011/06/12/some-ruby-idioms/</loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2011/08/09/tweaking-flash-cs5-duplicate-symbol-dialog/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://davidlinse.github.io/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/
+        </loc>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
+    </url>
+    <url>
         <loc>http://davidlinse.github.io/blog/2013/10/03/status/</loc>
         <lastmod>2014-02-16T15:00:22+01:00</lastmod>
     </url>
@@ -20,19 +78,19 @@
     </url>
     <url>
         <loc>http://davidlinse.github.io/archives/</loc>
-        <lastmod>2014-02-16T15:00:22+01:00</lastmod>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
     </url>
     <url>
         <loc>http://davidlinse.github.io/blog/archives/</loc>
-        <lastmod>2014-02-16T15:00:22+01:00</lastmod>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
     </url>
     <url>
         <loc>http://davidlinse.github.io/blog/</loc>
-        <lastmod>2014-02-16T15:00:22+01:00</lastmod>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
     </url>
     <url>
         <loc>http://davidlinse.github.io/</loc>
-        <lastmod>2014-02-16T15:00:22+01:00</lastmod>
+        <lastmod>2014-02-16T16:16:42+01:00</lastmod>
     </url>
     <url>
         <loc>http://davidlinse.github.io/robots.txt</loc>

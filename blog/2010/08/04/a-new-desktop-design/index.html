@@ -1,0 +1,557 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A New Desktop Design - 8ball-media</title>
+  <meta name="author" content="David Linse">
+
+  
+  <meta name="description" content="v0.2 of my new desktop design made with GeekTool During the rainy weekend i spent some time to fiddle around a bit with the
+&ldquo;geektool&rdquo;. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="8ball-media" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4078850-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">8ball-media</a></h1>
+  
+    <h2>little pieces from everything</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:davidlinse.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">A New Desktop Design</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-08-04T00:08:11+02:00" pubdate data-updated="true">Aug 4<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>v0.2 of my new desktop design made with <em>GeekTool</em></p>
+
+<p>During the rainy weekend i spent some time to fiddle around a bit with the
+<em>&ldquo;<a href="http://projects.tynsoe.org/en/geektool/">geektool</a>&rdquo;</em>.<br/>After researching a bit about <em>shell programming</em> and
+reviewing a lot of scripts and examples i wrote some for myself.</p>
+
+<p>With a good looking wallpaper and the script collection in place this is the
+result <em>(for now)</em>.</p>
+
+<p><img class="center" src="/media/geektool-desktop-v0.2.png">
+<em><em>Note:</em></em> <a href="http://stratification.deviantart.com/gallery/?8458648#/d18jam5">credits</a> for the wallpaper found on <a href="http://stratification.deviantart.com/gallery/?8458648#/d18jam5">deviantart.com</a></p>
+
+<p><a name="top"></a></p>
+
+<p><a href="#Weather">Weather</a>, <a href="#CPU_Usage">CPU</a>, <a href="NetworkIO">Network I/O</a>,
+<a href="#RAM_Usage">RAM Usage</a>, <a href="#HDD_Usage">HDD Usage</a>, <a href="#Processes">Processes</a>,
+<a href="#MemorysHogs">Memory Hogs</a>, <a href="#Calendar">Calendar</a>,
+<a href="#Google">Google Mail</a> <small><em>(unread)</em></small></p>
+
+<!-- more -->
+
+
+<ul>
+<li><a href="#Weather">Weather</a></li>
+<li><a href="#CPU_Usage">CPU</a></li>
+<li><a href="NetworkIO">Network I/O</a></li>
+<li><a href="#RAM_Usage">RAM Usage</a></li>
+<li><a href="#HDD_Usage">HDD Usage</a></li>
+<li><a href="#Processes">Processes</a></li>
+<li><a href="#MemorysHogs">Memory Hogs</a></li>
+<li><a href="#Calendar">Calendar</a></li>
+<li><a href="#Google">Google Mail</a> <small><em>(unread)</em></small></li>
+</ul>
+
+
+<br/>
+
+
+<p><a name="Weather"></a></p>
+
+<h4>Weather</h4>
+
+<p>displays the current wheather, the forecast for tomorrow and the day after
+and an image of the current condition.</p>
+
+<pre><code>#!/bin/sh
+
+# displays the current wheather condition and saves an appropriate image
+# as well as the forecast for tomorrow and the day after
+
+TMP_DIR=/tmp/;    # the tmp working-directory
+
+TMP_FILE=weather.xml;   # the name of the .tmp file
+
+file=$TMP_DIR/$TMP_FILE;  # the tmp file
+
+REGION_URI=germany/berlin/berlin-20065565/;  # the url for berlin, germany
+
+CITY_CODE=GMXX0007;     # the region code for berlin, germany
+
+#
+# get the image for the current conditions
+#
+curl -s -o $TMP_DIR/weather.html 'http://weather.yahoo.com/'$REGION_URI;
+
+curl -s -o $TMP_DIR/weather.png |
+  `grep "div class="forecast-icon" style="background:url" |
+   $TMP_DIR/weather.html |
+   awk -F"'" '{ printf $2 }'`
+
+#
+# get the forecast
+#
+curl -s -o $file 'http://xml.weather.yahoo.com/forecastrss?p='$CITY_CODE'&amp;u;=c'
+
+#
+# tomorrow
+#
+more $file | grep -E -m 1 '(High:)'|
+  sed -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/&lt;b&gt;//' -e 's/&lt; /b&gt;//'
+      -e 's/&lt;br&gt;&lt;/br&gt;//' -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/High://g' -e 's/Low:/-/g'
+
+#
+# the day after tomorrow
+#
+more $file | grep -E -m 2 '(High:)' |
+  sed -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/&lt;/b&gt;&lt;b&gt;//' -e 's/&lt; /b&gt;//'
+      -e 's/&lt;br&gt;&lt;/br&gt;//'
+      -e 's/High://g' -e 's/Low:/-/g' |
+  tail -r -n 1
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="CPU_Usage"></a></p>
+
+<h4>CPU Usage</h4>
+
+<blockquote><p>  # displays the cpu usage for user/system/idle</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the cpu usage for user/system/idle
+
+TMP_DIR=/tmp
+
+ps -arcwwxo "command %cpu ruser" |
+  head -11 |
+  sed '/top/d' &gt; $TMP_DIR/cpu.temp
+
+cat $TMP_DIR/cpu.temp |
+  head -11 |
+  sed -e "s/COMMAND/Processes/g" -e 's/ %CPU RUSER//'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="NetworkIO"></a></p>
+
+<h4>Network I/O</h4>
+
+<blockquote><p>  # displays the current I/O of a network adapter</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the current I/O of a specified network adapter
+# created by chris helming.
+# chris dot helming at gmail
+
+# get the current number of bytes in and bytes out
+myvar1=`netstat -ib | grep -e "en0" -m 1 | awk '{print $7}'` #  bytes in
+myvar3=`netstat -ib | grep -e "en0" -m 1 | awk '{print $10}'` # bytes out
+
+# wait one second
+sleep 1
+
+# get the number of bytes in and out one second later
+myvar2=`netstat -ib | grep -e "en0" -m 1 | awk '{print $7}'` # bytes in again
+myvar4=`netstat -ib | grep -e "en0" -m 1 | awk '{print $10}'` # bytes out again
+
+# find the difference between bytes in and out during that one second
+subin=$(($myvar2 - $myvar1))
+subout=$(($myvar4 - $myvar3))
+
+# convert bytes to kilobytes
+kbin=`echo "scale=2; $subin/1024;" | bc`
+kbout=`echo "scale=2; $subout/1024;" | bc`
+
+# print the results
+echo "Network I/O"
+echo "D: $kbin Kb/sec"
+echo "U: $kbout Kb/sec"
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="RAM_Usage"></a></p>
+
+<h4>RAM Usage</h4>
+
+<blockquote><p>  # displays the current RAM usage</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the current RAM usage
+
+top -FR -l 1 | awk '/PhysMem/ {print "Used: " $8 " Free: " $10}'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="HDD_Usage"></a></p>
+
+<h4>HDD Usage</h4>
+
+<blockquote><p>  # displays the space of specified hdd&rsquo;s</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the space of specified hdd's (internal, external Time-Machine Backup)
+
+df -h | grep disk0s2 | awk '{print "HDD #1: " $4 " (" $5 " used)"}' # internal
+df -h | grep "Time"  | awk '{print "HDD #2: " $4 " (" $5 " used)"}' # external
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Processes"></a></p>
+
+<h4>Processes</h4>
+
+<blockquote><p>  # displays the 10 most cpu greedy processes</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the 10 most cpu greedy processes
+
+TMP_DIR=/tmp
+
+ps -arcwwxo "command %cpu ruser" | head -11 | sed '/top/d' &gt; $TMP_DIR/cpu.temp
+more $GT_DIR/cpu.temp |
+  head -11 | \
+  sed -e "s/COMMAND/Processes/g" \
+      -e 's/ %CPU RUSER//'
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="MemoryHogs"></a></p>
+
+<h4>Memory Hogs</h4>
+
+<blockquote><p>  # displays the 10 most memory greedy processes</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the 10 most memory greedy processes
+
+top -orsize -FR -l1 | \
+  grep % | \
+  grep -v  \Load | \
+  grep -v  \COMMAND | \
+  cut -c 7-19,64-69 | \
+  head -10
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Calendar"></a></p>
+
+<h4>Calendar</h4>
+
+<blockquote><p>  # displays the calendar of the current month</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# displays the calendar of the current month
+
+cal
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p><a name="Google"></a></p>
+
+<h4>Google Mail <sup>(<em>unread messages</em>)</sup></h4>
+
+<blockquote><p>  # displays the unread emails from #inbox</p></blockquote>
+
+<pre><code>#!/bin/sh
+
+# Thanks to Dave Taylor at www.askdavetaylor.com for
+# the great tutorial on accessing and parsing RSS feeds with a shell script
+
+# displays the unread emails from #inbox
+
+username='' # username is your email address with @ replaced by %40.
+password='' # your password
+
+url="https://$username:$password@mail.google.com/mail/feed/atom/inbox"
+
+if [ $# -eq 1 ] ; then
+  headarg=$(( $1 * 2 ))
+else
+  headarg="-8"  # default is four email messages
+fi
+
+curl -s $url | grep -E '(title&gt;|summary&gt;)' | \
+  sed -n '2,$p' | \
+  sed -e 's/&lt;title&gt;//'  -e 's/&lt; /title&gt;//' \
+      -e 's/&lt;summary&gt;/   /' -e 's/&lt; /summary&gt;//' | \
+  head $headarg | \
+  fmt -w $width
+</code></pre>
+
+<p><sup><em><a href="#top">(Back to Top)</a></em></sup></p>
+
+<p>this is it for now.. #ilovemygeektoolstyleddesktop ;)</p>
+
+<p>~david</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">David Linse</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-08-04T00:08:11+02:00" pubdate data-updated="true">Aug 4<span>th</span>, 2010</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/experiments/'>experiments</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design/" data-via="davidlinse" data-counturl="http://davidlinse.github.io/blog/2010/08/04/a-new-desktop-design/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2009/08/21/comparing-objects-using-json-in-as3/" title="Previous Post: Comparing Objects using JSON in AS3">&laquo; Comparing Objects using JSON in AS3</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2010/08/23/android-on-htc-rhodium/" title="Next Post: Android 2.2 Froyo on HTC Touch Pro2 (Rhodium)">Android 2.2 Froyo on HTC Touch Pro2 (Rhodium) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/how-to-port-wordpress-blog-entries-to-octopress-markdown-files/">How to port WordPress blog entries to OctoPress .markdown files</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/03/status/">Status</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/10/03/rcov-verify-task-threshold-auto-update-monitor/">RCov::VerifyTask "threshold" auto-update monitor</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/davidlinse">@davidlinse</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'davidlinse',
+            count: 2,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.ready(function(){
+      getTwitterFeed("davidlinse", 5, true);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/davidlinse" class="twitter-follow-button" data-show-count="">Follow @davidlinse</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - David Linse -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
