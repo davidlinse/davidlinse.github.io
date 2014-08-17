@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: octopress | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-08-17T16:50:18+02:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fix for Octopress twitter plugin]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/02/10/fix-for-octopress-twitter-plugin/"/>
+    <updated>2014-02-10T19:13:09+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/02/10/fix-for-octopress-twitter-plugin</id>
+    <content type="html"><![CDATA[<p>After repeatingly detecting some <em>JavaScript</em>-Errors in Chrome&rsquo;s <em>Developer
+Console</em> i tracked them down to the <code>getTwitterFeed(user, count, replies)</code>
+function in <code>.themes/classic/source/javascripts/twitter.js</code>.</p>
+
+<p><em>Note:</em> I&rsquo;m using the <em>classic</em> theme at the time of writing.</p>
+
+<p>The plugin uses values from <code>_config.yml</code> to assign them to variable <code>user</code>,
+<code>count</code> and <code>reply</code>, which were sent via an <em>AJAX</em> request to
+<em>twitter&rsquo;s REST api</em>.
+But since there are no <em>default</em>-values defined <code>count</code> and <code>replies</code> are
+<code>undefined</code> or will be <code>NaN</code> in case of <code>count</code>.</p>
+
+<p>All you need to do is to add the following <em>variables</em> to
+your <code>_config.yml</code> file.</p>
+
+<pre><code>twitter_tweet_count: 5
+twitter_show_replies: true
+twitter_follow_button: true
+</code></pre>
+
+<p>Now the <em>variables</em> can be defined and your <em>twitter</em> plugin is fixed and
+will show up properly in the sidebar.</p>
+
+<p>Hope that helps and saves you some time.</p>
+
+<p>regards<br/>
+~ david</p>
+]]></content>
+  </entry>
+  
+</feed>

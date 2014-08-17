@@ -193,6 +193,66 @@ Hope that helps and saves you some time.</p>
     <article class="post">
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/02/10/fix-for-octopress-twitter-plugin/">Fix for Octopress twitter plugin</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-10T19:13:09+01:00" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After repeatingly detecting some <em>JavaScript</em>-Errors in Chrome&rsquo;s <em>Developer
+Console</em> i tracked them down to the <code>getTwitterFeed(user, count, replies)</code>
+function in <code>.themes/classic/source/javascripts/twitter.js</code>.</p>
+
+<p><em>Note:</em> I&rsquo;m using the <em>classic</em> theme at the time of writing.</p>
+
+<p>The plugin uses values from <code>_config.yml</code> to assign them to variable <code>user</code>,
+<code>count</code> and <code>reply</code>, which were sent via an <em>AJAX</em> request to
+<em>twitter&rsquo;s REST api</em>.
+But since there are no <em>default</em>-values defined <code>count</code> and <code>replies</code> are
+<code>undefined</code> or will be <code>NaN</code> in case of <code>count</code>.</p>
+
+<p>All you need to do is to add the following <em>variables</em> to
+your <code>_config.yml</code> file.</p>
+
+<pre><code>twitter_tweet_count: 5
+twitter_show_replies: true
+twitter_follow_button: true
+</code></pre>
+
+<p>Now the <em>variables</em> can be defined and your <em>twitter</em> plugin is fixed and
+will show up properly in the sidebar.</p>
+
+<p>Hope that helps and saves you some time.</p>
+
+<p>regards<br/>
+~ david</p>
+</div>
+  
+  
+
+</article>
+
+
+    <article class="post">
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/02/08/leaving-wordpress/">Bye WordPress, Welcome Octopress (?!)</a></h1>
     
     
@@ -249,73 +309,6 @@ Plus i can play with <em>git</em> and write in <a href="http://lmgtfy.com/?q=Dar
 
 </article>
 
-
-    <article class="post">
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-31T14:45:35+01:00" pubdate data-updated="true">Jan 31<span>st</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>sublimerge</h4>
-
-<p>You want to stay in your editor while <code>committing</code>, <code>merging</code> or
-<code>diff</code>&lsquo;n your <em>git</em>-based project ? Then you really should have a look at
-this awesome looking plugin for Sublime Text.</p>
-
-<ul>
-<li><a href="http://www.sublimerge.com/">sublimerge</a> &ndash; A diff and merge tool for Sublime Text 2/3</li>
-</ul>
-
-
-<h4>phantomas</h4>
-
-<p>You&rsquo;re interessed in the performance (and other <em>metrics</em>) of your front-end ?
-Check out the <em>phantomas</em> node module. It is evolving heavily and the number of
-contributors in growing steadily. It provides you with a nice graphical overview
-including <em>longest request</em>, <em>biggest requested data</em> and a lot of other <em>metrics</em>.
-Go ahead and give it a try.</p>
-
-<ul>
-<li><a href="https://github.com/stefanjudis/grunt-phantomas">phantomas</a> &ndash; Measure Front-End-Performance with NodeJS</li>
-</ul>
-
-
-<h4>qlstephen</h4>
-
-<p>Want to preview <code>.json</code> or <code>README</code> files with the <em>QuickLook</em> in <em>Finder</em> in OSX ?
-A quick download&#8217;n extract to <code>~/Library/Quicklook</code>and
-you&rsquo;re done!</p>
-
-<ul>
-<li><a href="https://github.com/whomwah/qlstephen">QLStephen</a> &ndash; Give it a try..</li>
-</ul>
-
-</div>
-  
-  
-
-</article>
-
 <nav id="pagenavi">
     
     
@@ -338,16 +331,6 @@ you&rsquo;re done!</p>
 
 
 
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 

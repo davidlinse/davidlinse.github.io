@@ -4,7 +4,7 @@
   <title><![CDATA[8ball-media]]></title>
   <link href="http://davidlinse.github.io/atom.xml" rel="self"/>
   <link href="http://davidlinse.github.io/"/>
-  <updated>2014-02-16T16:45:44+01:00</updated>
+  <updated>2014-08-17T16:50:18+02:00</updated>
   <id>http://davidlinse.github.io/</id>
   <author>
     <name><![CDATA[David Linse]]></name>
@@ -95,6 +95,41 @@ directory.
 Hope that helps and saves you some time.</p>
 
 <p>~ David</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fix for Octopress twitter plugin]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/02/10/fix-for-octopress-twitter-plugin/"/>
+    <updated>2014-02-10T19:13:09+01:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/02/10/fix-for-octopress-twitter-plugin</id>
+    <content type="html"><![CDATA[<p>After repeatingly detecting some <em>JavaScript</em>-Errors in Chrome&rsquo;s <em>Developer
+Console</em> i tracked them down to the <code>getTwitterFeed(user, count, replies)</code>
+function in <code>.themes/classic/source/javascripts/twitter.js</code>.</p>
+
+<p><em>Note:</em> I&rsquo;m using the <em>classic</em> theme at the time of writing.</p>
+
+<p>The plugin uses values from <code>_config.yml</code> to assign them to variable <code>user</code>,
+<code>count</code> and <code>reply</code>, which were sent via an <em>AJAX</em> request to
+<em>twitter&rsquo;s REST api</em>.
+But since there are no <em>default</em>-values defined <code>count</code> and <code>replies</code> are
+<code>undefined</code> or will be <code>NaN</code> in case of <code>count</code>.</p>
+
+<p>All you need to do is to add the following <em>variables</em> to
+your <code>_config.yml</code> file.</p>
+
+<pre><code>twitter_tweet_count: 5
+twitter_show_replies: true
+twitter_follow_button: true
+</code></pre>
+
+<p>Now the <em>variables</em> can be defined and your <em>twitter</em> plugin is fixed and
+will show up properly in the sidebar.</p>
+
+<p>Hope that helps and saves you some time.</p>
+
+<p>regards<br/>
+~ david</p>
 ]]></content>
   </entry>
   
@@ -1012,7 +1047,7 @@ Now let&rsquo;s see how an ant-target which makes usage of  the MailTask could l
 
 <p>I think it is pretty self-explanatory. This would send an e-mail with
 the subject:<br/>
-&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#109;&#x65;&#x40;&#109;&#121;&#112;&#114;&#111;&#118;&#105;&#100;&#x65;&#x72;&#x2e;&#99;&#x6f;&#x6d;">&#x6d;&#101;&#64;&#x6d;&#121;&#x70;&#x72;&#x6f;&#x76;&#105;&#100;&#x65;&#x72;&#46;&#x63;&#111;&#x6d;</a>&rdquo; to &ldquo;<a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#x79;&#x6f;&#x75;&#64;&#x6d;&#121;&#x70;&#114;&#111;&#x76;&#105;&#100;&#101;&#x72;&#x2e;&#99;&#x6f;&#x6d;">&#x79;&#111;&#x75;&#64;&#x6d;&#121;&#112;&#114;&#x6f;&#x76;&#x69;&#x64;&#x65;&#114;&#46;&#99;&#111;&#x6d;</a>&rdquo;
+&ldquo;Test Message sent via Ant MailTask&rdquo; from &ldquo;<a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#x3a;&#109;&#x65;&#64;&#x6d;&#x79;&#x70;&#114;&#111;&#118;&#x69;&#100;&#101;&#114;&#46;&#x63;&#111;&#109;">&#x6d;&#x65;&#x40;&#x6d;&#x79;&#x70;&#x72;&#111;&#118;&#105;&#x64;&#101;&#x72;&#46;&#x63;&#111;&#109;</a>&rdquo; to &ldquo;<a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#111;&#58;&#121;&#111;&#117;&#64;&#x6d;&#x79;&#112;&#114;&#111;&#x76;&#x69;&#100;&#101;&#x72;&#46;&#x63;&#x6f;&#x6d;">&#x79;&#111;&#117;&#64;&#109;&#121;&#x70;&#x72;&#111;&#118;&#105;&#100;&#101;&#114;&#46;&#x63;&#x6f;&#x6d;</a>&rdquo;
 with &ldquo;Hello World, i was sent by the Ant MailTask&rdquo; as message and all zip-files from
 the <code>basedir</code> as attachment.</p>
 
