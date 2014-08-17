@@ -9,9 +9,9 @@
   <meta name="author" content="David Linse">
 
   
-  <meta name="description" content="This is a quick summary of how to port your existing (selfhosted) WordPress
-blog to Markdown files for OctoPress
-using a tool called ExitWP. # create &hellip;">
+  <meta name="description" content="It took some time, but my PR to CasperJS has landed.
+Now you can fail a test with a custom value for a testcase node&rsquo;s name
+property like: 1 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,102 @@ using a tool called ExitWP. # create &hellip;">
   <div id="main">
     <div id="content">
       
+
+
+    <article class="post">
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/17/casperjs-fail-test-with-custom-name-in-xml-report/">CasperJS - fail test with custom testcase-name in xml report</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-17T17:13:08+02:00" pubdate data-updated="true">Aug 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>It took some time, but my <em>PR</em> to <em>CasperJS</em> has landed.
+Now you can <em>fail</em> a test with a custom value for a <code>testcase</code> node&rsquo;s <em>name</em>
+property like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>casper.test.fail('A custom message', {name: 'custom name'});</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<p><em>tl;dr</em></p>
+
+<p>When using the <code>--xunit=/path/to/report.xml</code> casperjs is using the <code>message</code>
+as property for the <code>name</code> of the <code>testcase</code> node in xml report.</p>
+
+<p>This means if you fail a test like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>casper.fail('A really long and expressive message');</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the resulting xml would look something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;testcase</span> <span class="na">classname=</span><span class="s">&quot;a-custom-test-case-name&quot;</span> <span class="na">name=</span><span class="s">&quot;A really long and expressive message&quot;</span> <span class="na">time=</span><span class="s">&quot;0.023&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;failure</span> <span class="na">type=</span><span class="s">&quot;fail&quot;</span><span class="nt">&gt;</span>A really long and expressive message<span class="nt">&lt;/failure&gt;</span>
+</span><span class='line'><span class="nt">&lt;/testcase&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Imagine you want to capture and provide an <em>stacktrace</em> from a <em>jsp</em> page
+as message..</p>
+
+<p>Here comes the optional argument <em>FTW</em>.
+As stated above, pass in a arbitrary object with a <code>name</code> property like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">stacktrace</span> <span class="o">=</span> <span class="nx">casper</span><span class="p">.</span><span class="nx">fictional_method_to_capture_stacktrace</span><span class="p">();</span>
+</span><span class='line'><span class="nx">casper</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">fail</span><span class="p">(</span><span class="nx">stacktrace</span><span class="p">,</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;stacktrace&#39;</span><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and you&rsquo;ll get</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;testcase</span> <span class="na">classname=</span><span class="s">&quot;a-custom-test-case-name&quot;</span> <span class="na">name=</span><span class="s">&quot;stacktrace&quot;</span> <span class="na">time=</span><span class="s">&quot;0.023&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;failure</span> <span class="na">type=</span><span class="s">&quot;fail&quot;</span><span class="nt">&gt;</span>Exception in thread &quot;main&quot; java.lang.NullPointerException
+</span><span class='line'>    at Test.test(Test.java:6)
+</span><span class='line'>    at Test.main(Test.java:10)
+</span><span class='line'>  <span class="nt">&lt;/failure&gt;</span>
+</span><span class='line'><span class="nt">&lt;/testcase&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Much better..</p>
+</div>
+  
+  
+
+</article>
 
 
     <article class="post">
@@ -242,73 +338,6 @@ Plus i can play with <em>git</em> and write in <a href="http://lmgtfy.com/?q=Dar
 <small><em>Keywords: Octopress, Wordpress, Markdown, git, White Admin Panel</em></small></p>
 
 <!-- keywords: Octopress, Wordpress, Markdown, git, White Admin Panel -->
-
-</div>
-  
-  
-
-</article>
-
-
-    <article class="post">
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/31/picks-of-the-month/">picks of the month #1</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-31T14:45:35+01:00" pubdate data-updated="true">Jan 31<span>st</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>sublimerge</h4>
-
-<p>You want to stay in your editor while <code>committing</code>, <code>merging</code> or
-<code>diff</code>&lsquo;n your <em>git</em>-based project ? Then you really should have a look at
-this awesome looking plugin for Sublime Text.</p>
-
-<ul>
-<li><a href="http://www.sublimerge.com/">sublimerge</a> &ndash; A diff and merge tool for Sublime Text 2/3</li>
-</ul>
-
-
-<h4>phantomas</h4>
-
-<p>You&rsquo;re interessed in the performance (and other <em>metrics</em>) of your front-end ?
-Check out the <em>phantomas</em> node module. It is evolving heavily and the number of
-contributors in growing steadily. It provides you with a nice graphical overview
-including <em>longest request</em>, <em>biggest requested data</em> and a lot of other <em>metrics</em>.
-Go ahead and give it a try.</p>
-
-<ul>
-<li><a href="https://github.com/stefanjudis/grunt-phantomas">phantomas</a> &ndash; Measure Front-End-Performance with NodeJS</li>
-</ul>
-
-
-<h4>qlstephen</h4>
-
-<p>Want to preview <code>.json</code> or <code>README</code> files with the <em>QuickLook</em> in <em>Finder</em> in OSX ?
-A quick download&#8217;n extract to <code>~/Library/Quicklook</code>and
-you&rsquo;re done!</p>
-
-<ul>
-<li><a href="https://github.com/whomwah/qlstephen">QLStephen</a> &ndash; Give it a try..</li>
-</ul>
 
 </div>
   

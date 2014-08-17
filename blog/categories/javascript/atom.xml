@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javascript | 8ball-media]]></title>
+  <link href="http://davidlinse.github.io/blog/categories/javascript/atom.xml" rel="self"/>
+  <link href="http://davidlinse.github.io/"/>
+  <updated>2014-08-17T18:35:02+02:00</updated>
+  <id>http://davidlinse.github.io/</id>
+  <author>
+    <name><![CDATA[David Linse]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[CasperJS - fail test with custom testcase-name in xml report]]></title>
+    <link href="http://davidlinse.github.io/blog/2014/08/17/casperjs-fail-test-with-custom-name-in-xml-report/"/>
+    <updated>2014-08-17T17:13:08+02:00</updated>
+    <id>http://davidlinse.github.io/blog/2014/08/17/casperjs-fail-test-with-custom-name-in-xml-report</id>
+    <content type="html"><![CDATA[<p>It took some time, but my <em>PR</em> to <em>CasperJS</em> has landed.
+Now you can <em>fail</em> a test with a custom value for a <code>testcase</code> node&rsquo;s <em>name</em>
+property like:</p>
+
+<p><code>
+casper.test.fail('A custom message', {name: 'custom name'});
+</code></p>
+
+<hr />
+
+<p><em>tl;dr</em></p>
+
+<p>When using the <code>--xunit=/path/to/report.xml</code> casperjs is using the <code>message</code>
+as property for the <code>name</code> of the <code>testcase</code> node in xml report.</p>
+
+<p>This means if you fail a test like:
+<code>
+casper.fail('A really long and expressive message');
+</code>
+the resulting xml would look something like:</p>
+
+<p><code>xml
+&lt;testcase classname="a-custom-test-case-name" name="A really long and expressive message" time="0.023"&gt;
+  &lt;failure type="fail"&gt;A really long and expressive message&lt;/failure&gt;
+&lt;/testcase&gt;
+</code></p>
+
+<p>Imagine you want to capture and provide an <em>stacktrace</em> from a <em>jsp</em> page
+as message..</p>
+
+<p>Here comes the optional argument <em>FTW</em>.
+As stated above, pass in a arbitrary object with a <code>name</code> property like:</p>
+
+<p><code>js
+var stacktrace = casper.fictional_method_to_capture_stacktrace();
+casper.test.fail(stacktrace, {name: 'stacktrace'});
+</code>
+and you&rsquo;ll get</p>
+
+<p>```xml
+<testcase classname="a-custom-test-case-name" name="stacktrace" time="0.023">
+  <failure type="fail">Exception in thread &ldquo;main&rdquo; java.lang.NullPointerException</p>
+
+<pre><code>at Test.test(Test.java:6)
+at Test.main(Test.java:10)
+</code></pre>
+
+<p>  </failure>
+</testcase>
+```</p>
+
+<p>Much better..</p>
+]]></content>
+  </entry>
+  
+</feed>
